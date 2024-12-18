@@ -4,8 +4,8 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class BandMatchingApplication {
+public class MatchingBandApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(BandMatchingApplication.class, args);
+		SpringApplication.run(MatchingBandApplication.class, args);
 	}
 }

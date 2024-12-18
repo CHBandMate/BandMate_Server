@@ -1,4 +1,4 @@
-package com.matching.band.global.exception.handler;
+package com.matching.band.global.util.exception.handler;
 
 import com.matching.band.global.api.ApiResponse;
 import com.matching.band.global.api.ErrorData;
