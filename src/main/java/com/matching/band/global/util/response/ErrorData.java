@@ -1,4 +1,4 @@
-package com.matching.band.global.api;
+package com.matching.band.global.util.response;
 
 import lombok.Builder;
 import lombok.Getter;

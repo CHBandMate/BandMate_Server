@@ -8,7 +8,7 @@ import java.util.Arrays;
 @Getter
 @RequiredArgsConstructor
 public enum OAuthType {
-    KAKAO("kakao_account", "id", "email"),
+    KAKAO("kakao_account", "id", "id"),
     NAVER("response", "id", "email"),
     GOOGLE(null, "sub", "email");
 

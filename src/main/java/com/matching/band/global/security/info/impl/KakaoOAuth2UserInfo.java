@@ -12,8 +12,6 @@ public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
 
     @Override
     public String getUserIdentifier() {
-        // kakao_account
-        attributes.get(OAuthType.KAKAO.getAttributeKey());
-        return (String) attributes.get(OAuthType.KAKAO.getIdentifier());
+        return String.valueOf(attributes.get(OAuthType.KAKAO.getIdentifier()));
     }
 }

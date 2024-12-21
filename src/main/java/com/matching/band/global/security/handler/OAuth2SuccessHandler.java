@@ -1,51 +1,48 @@
 package com.matching.band.global.security.handler;
 
 import com.matching.band.domain.user.entity.UserEntity;
-import com.matching.band.domain.user.repository.UserRepository;
-import com.matching.band.global.api.constant.ErrorConstant;
+import com.matching.band.global.security.constants.Auth;
+import com.matching.band.global.security.domain.UserPrincipal;
 import com.matching.band.global.security.constants.Role;
+import com.matching.band.global.security.service.JWTUtils;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
+import java.util.Map;
 
 @Configuration
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final String SIGNUP_URL;
     private final String MAIN_URL;
-    private final UserRepository userRepository;
 
     public OAuth2SuccessHandler(@Value("${url.base}") String BASE_URL,
                                 @Value("${url.path.signup}") String SIGN_UP_PATH,
-                                @Value("${url.path.main}") String MAIN_URL,
-                                UserRepository userRepository) {
-        this.userRepository = userRepository;
+                                @Value("${url.path.main}") String MAIN_URL) {
         this.SIGNUP_URL = BASE_URL + SIGN_UP_PATH;
         this.MAIN_URL = BASE_URL + MAIN_URL;
     }
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
-        String identifier = oAuth2User.getName();
-
-        UserEntity user = userRepository.findByOauthId(identifier)
-                .orElseThrow(() -> new RuntimeException(ErrorConstant.NOT_FOUND.getErrorMessage()));
-
-        String redirectUrl = getRedirectUrlByRole(user.getRole(), identifier);
+        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
+        UserEntity oAuth2User = userPrincipal.getUser();
+        String redirectUrl = getRedirectUrlByRole(oAuth2User);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
-    private String getRedirectUrlByRole(Role role, String identifier) {
-        return UriComponentsBuilder.fromUriString(role == Role.NOT_REGISTERED ? SIGNUP_URL : MAIN_URL)
-                .queryParam("identifier", identifier)
+    private String getRedirectUrlByRole(UserEntity user) {
+        // 토큰 발급 로직 추가
+        Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
+        return UriComponentsBuilder.fromUriString(user.getRole() == Role.NOT_REGISTERED ? SIGNUP_URL : MAIN_URL)
+                .queryParam("access", tokenMap.get(Auth.ACCESS_TYPE.getKey()))
+                .queryParam("refresh", tokenMap.get(Auth.REFRESH_TYPE.getKey()))
                 .build()
                 .toUriString();
     }

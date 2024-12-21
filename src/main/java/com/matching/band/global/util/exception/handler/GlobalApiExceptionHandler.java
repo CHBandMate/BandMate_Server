@@ -1,8 +1,8 @@
 package com.matching.band.global.util.exception.handler;
 
-import com.matching.band.global.api.ApiResponse;
-import com.matching.band.global.api.ErrorData;
-import com.matching.band.global.api.constant.ErrorConstant;
+import com.matching.band.global.util.response.ApiResponse;
+import com.matching.band.global.util.response.ErrorData;
+import com.matching.band.global.util.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -34,10 +34,10 @@ public class GlobalApiExceptionHandler {
     protected ApiResponse<ErrorData> handleNoHandlerFoundExceptionException(NoHandlerFoundException exception) {
         log.error("NoHandlerFoundException", exception);
         ErrorData response = ErrorData.builder()
-                .errorCode(ErrorConstant.NOT_FOUND.getErrorCode())
-                .errorMessage(ErrorConstant.NOT_FOUND.getErrorMessage())
+                .errorCode(ErrorCode.NOT_FOUND.getErrorCode())
+                .errorMessage(ErrorCode.NOT_FOUND.getErrorMessage())
                 .build();
-        return ApiResponse.fail(ErrorConstant.NOT_FOUND.getStatusCode(), response);
+        return ApiResponse.fail(ErrorCode.NOT_FOUND.getStatusCode(), response);
     }
 
     /**
@@ -50,10 +50,10 @@ public class GlobalApiExceptionHandler {
     protected ApiResponse<ErrorData> handleIOException(IOException exception) {
         log.error("IOException", exception);
         ErrorData response = ErrorData.builder()
-                .errorCode(ErrorConstant.INTERNAL_SERVER.getErrorCode())
-                .errorMessage(ErrorConstant.INTERNAL_SERVER.getErrorMessage())
+                .errorCode(ErrorCode.INTERNAL_SERVER.getErrorCode())
+                .errorMessage(ErrorCode.INTERNAL_SERVER.getErrorMessage())
                 .build();
-        return ApiResponse.fail(ErrorConstant.INTERNAL_SERVER.getStatusCode(), response);
+        return ApiResponse.fail(ErrorCode.INTERNAL_SERVER.getStatusCode(), response);
     }
 
     /**
@@ -66,10 +66,10 @@ public class GlobalApiExceptionHandler {
     protected ApiResponse<ErrorData> handleNullPointerException(NullPointerException exception) {
         log.error("NullPointerException", exception);
         ErrorData response = ErrorData.builder()
-                .errorCode(ErrorConstant.NULL_POINT.getErrorCode())
-                .errorMessage(ErrorConstant.NULL_POINT.getErrorMessage())
+                .errorCode(ErrorCode.NULL_POINT.getErrorCode())
+                .errorMessage(ErrorCode.NULL_POINT.getErrorMessage())
                 .build();
-        return ApiResponse.fail(ErrorConstant.NULL_POINT.getStatusCode(), response);
+        return ApiResponse.fail(ErrorCode.NULL_POINT.getStatusCode(), response);
     }
 
     /**
@@ -81,10 +81,10 @@ public class GlobalApiExceptionHandler {
     protected final ApiResponse<ErrorData> handleAllExceptions(Exception exception) {
         log.error("Other Error", exception);
         ErrorData response = ErrorData.builder()
-                .errorCode(ErrorConstant.OTHER_ERROR.getErrorCode())
-                .errorMessage(ErrorConstant.OTHER_ERROR.getErrorMessage())
+                .errorCode(ErrorCode.OTHER_ERROR.getErrorCode())
+                .errorMessage(ErrorCode.OTHER_ERROR.getErrorMessage())
                 .build();
-        return ApiResponse.fail(ErrorConstant.OTHER_ERROR.getStatusCode(), response);
+        return ApiResponse.fail(ErrorCode.OTHER_ERROR.getStatusCode(), response);
     }
 
 }

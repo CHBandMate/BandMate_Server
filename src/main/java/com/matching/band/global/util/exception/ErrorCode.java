@@ -1,4 +1,5 @@
-package com.matching.band.global.api.constant;
+package com.matching.band.global.util.exception;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -9,7 +10,8 @@ import lombok.Getter;
  * @version 1.0
  */
 @Getter
-public enum ErrorConstant {
+@AllArgsConstructor
+public enum ErrorCode {
 
     //************************************************ Client Error ************************************************//
     NOT_FOUND(404, "ERR_CLIENT_001", "Not Found Exception"),                        // 서버로 요청한 리소스가 존재하지 않음
@@ -41,14 +43,7 @@ public enum ErrorConstant {
     INTERNAL_SERVER(500, "ERR_SERVER_001", "Internal Server Error"),                     // 서버 내부 에러
     ;
 
-    private int statusCode;         // 에러 상태 코드
-    private String errorCode;       // 에러 코드
-    private String errorMessage;    // 에러 메시지
-
-    ErrorConstant(final int statusCode, final String errorCode, final String errorMessage) {
-        this.statusCode = statusCode;
-        this.errorCode = errorCode;
-        this.errorMessage = errorMessage;
-    }
-
+    private final int statusCode;         // 에러 상태 코드
+    private final String errorCode;       // 에러 코드
+    private final String errorMessage;    // 에러 메시지
 }

@@ -28,28 +28,23 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     @Override
     @Transactional
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+
+        // provider로 부터 전달 된 회원 정보
         OAuth2UserService<OAuth2UserRequest, OAuth2User> delegate = new DefaultOAuth2UserService();
         OAuth2User oAuth2User = delegate.loadUser(userRequest);
 
-        // OAuth2 로그인 진행 시 키가 되는 필드값. Primary Key와 같은 의미.
+        // 사용자 정보 식별 key (google: sub, kakao: id ...)
         String userNameAttributeName = userRequest.getClientRegistration().getProviderDetails().getUserInfoEndpoint().getUserNameAttributeName();
 
-        // 서비스를 구분하는 코드 ex) Github, Naver
+        // provider 식별자(Kakao, Google, Naver...), OAuthType ENUM 생성
         String providerCode = userRequest.getClientRegistration().getRegistrationId();
-
-        // 어떤 소셜로그인을 사용했는지 반환받는 정적 메서드
         OAuthType oauthType = OAuthType.from(providerCode);
 
-        // 소셜쪽에서 전달받은 값들을 Map 형태로 받음
+        // provider 별 회원 정보 추출
         Map<String, Object> attributes = oAuth2User.getAttributes();
-
-        // 소셜로그인의 종류에 상관없이 사용자의 식별자를 받아오는 코드
         OAuth2UserInfo oAuth2UserInfo = OAuth2UserInfoFactory.getOAuth2UserInfo(oauthType, attributes);
-        String oauthId = oAuth2UserInfo.getUserIdentifier();
-
+        String oauthId = oAuth2UserInfo.getUserIdentifier(); // provider 사용자 고유 식별 ID (kakao: id, github: id ...)
         UserEntity user = getUser(oauthId, oauthType);
-
-        // Security context에 저장할 객체 생성
         return new UserPrincipal(user, attributes, userNameAttributeName);
     }
 
@@ -57,9 +52,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Optional<UserEntity> optionalUser = userRepository.findByOAuthInfo(oauthId, oauthType);
         if (optionalUser.isEmpty()) {
             UserEntity unregisteredUser = UserEntity.builder()
+                    .oauthType(oauthType)
                     .oauthId(oauthId)
                     .role(Role.NOT_REGISTERED)
-                    .oauthType(oauthType)
                     .build();
             return userRepository.save(unregisteredUser);
         }

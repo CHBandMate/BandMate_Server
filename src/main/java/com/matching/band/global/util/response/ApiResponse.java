@@ -1,4 +1,4 @@
-package com.matching.band.global.api;
+package com.matching.band.global.util.response;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

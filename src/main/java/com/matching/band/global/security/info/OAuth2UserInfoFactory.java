@@ -10,7 +10,7 @@ public class OAuth2UserInfoFactory {
 
     public static OAuth2UserInfo getOAuth2UserInfo(OAuthType oauthType, Map<String, Object> attributes) {
         switch (oauthType) {
-            case KAKAO -> {return new KakaoOAuth2UserInfo((Map<String, Object>) attributes.get(OAuthType.KAKAO.getAttributeKey()));}
+            case KAKAO -> {return new KakaoOAuth2UserInfo(attributes);}
         }
         throw new OAuth2AuthenticationException("INVALID PROVIDER TYPE");
     }

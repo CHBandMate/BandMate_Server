@@ -30,9 +30,6 @@ public class UserPrincipal implements OAuth2User {
         this.nameAttributeKey = nameAttributeKey;
     }
 
-    /**
-     * OAuth2User method implements
-     */
     @Override
     public String getName() {
         return user.getOauthId();
