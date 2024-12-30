@@ -25,9 +25,9 @@ public class UserPrincipal implements OAuth2User {
 
     public UserPrincipal(UserEntity user, Map<String, Object> attributes, String nameAttributeKey) {
         this.user = user;
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getKey()));
-        this.attributes = attributes;
         this.nameAttributeKey = nameAttributeKey;
+        this.attributes = attributes;
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(user.getRole().getKey()));
     }
 
     @Override

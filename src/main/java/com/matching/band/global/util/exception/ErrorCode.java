@@ -27,7 +27,7 @@ public enum ErrorCode {
 
     //************************************************ Auth Error ************************************************//
     UNAUTHORIZED(401, "ERR_AUTH_001", "Account is Unauthorized"),                        // 인증되지 않은 사용자
-    TOKEN_NOT_ALLOWED(403, "ERR_AUTH_002", "Token is Not Allowed"),                       // 허용되지 않은 토큰
+    TOKEN_NOT_ALLOWED(403, "ERR_AUTH_002", "Token is Not Allowed"),                      // 허용되지 않은 토큰
     TOKEN_EXPIRED(401, "ERR_AUTH_003", "Token is Expired"),                              // 토큰 만료
     TOKEN_NUll(401, "ERR_AUTH_004", "Token does not exist"),                             // 헤더에 토큰이 존재하지 않는 경우
     NOT_ACCESS_TOKEN(403, "ERR_AUTH_005", "It's not AccessToken"),                       // Access Token이 아닌 경우

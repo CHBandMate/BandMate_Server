@@ -1,15 +1,18 @@
 package com.matching.band.global.security.service;
 
 import com.matching.band.domain.user.entity.UserEntity;
-import com.matching.band.global.security.constants.Auth;
+import com.matching.band.domain.user.repository.UserRepository;
+import com.matching.band.global.security.constants.*;
+import com.matching.band.global.security.domain.UserPrincipal;
 import com.matching.band.global.util.exception.BusinessException;
 import com.matching.band.global.util.exception.ErrorCode;
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.JwtBuilder;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
@@ -19,12 +22,15 @@ import java.security.Key;
 import java.util.*;
 
 @Component
+@RequiredArgsConstructor
+@Slf4j
 public class JWTUtils {
     private static String ACCESS_SECRET_KEY;
     private static String REFRESH_SECRET_KEY;
     private static String EXPIRED_TYPE;
     private static long ACCESS_EXPIRED_TIME;   // AccessToken 만료 시간
     private static long REFRESH_EXPIRED_TIME;  // RefreshToken 만료 시간
+    private final UserRepository userRepository;
 
     @Value("${jwt.secret.access}")
     private void setAccessSecretKey(String value){
@@ -74,12 +80,9 @@ public class JWTUtils {
     private static String createToken(UserEntity userEntity, String tokenType, long expiredTime) {
         JwtBuilder jwtBuilder = Jwts.builder()
                 .setHeader(createHeader())
+                .setClaims(createClaims(userEntity, tokenType))
                 .setSubject(String.valueOf(userEntity.getUserNo()))
                 .setExpiration(createExpiration(expiredTime))
-                .claim("tokenType", tokenType)
-                .claim("oauthId", userEntity.getOauthId())
-                .claim("oauthType", userEntity.getOauthType())
-                .claim("role", userEntity.getRole().getKey())
                 .signWith(createSignature(tokenType.equals(Auth.ACCESS_TYPE.getKey()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY), SignatureAlgorithm.HS256);
         return jwtBuilder.compact();
     }
@@ -106,7 +109,7 @@ public class JWTUtils {
         claims.put("tokenType", tokenType);
         claims.put("oauthId", userEntity.getOauthId());
         claims.put("oauthType", userEntity.getOauthType());
-        claims.put("role", userEntity.getRole().getKey());
+        claims.put("role", userEntity.getRole());
         return claims;
     }
 
@@ -158,8 +161,7 @@ public class JWTUtils {
      * @return boolean
      */
     public static boolean isValidToken(String token) {
-        Claims claims = getClaimsFromToken(token);
-        return claims != null;
+        return getTokenStatus(token) == TokenStatus.AUTHENTICATED;
     }
 
     /**
@@ -167,19 +169,17 @@ public class JWTUtils {
      * @param token
      * @return Authentication
      */
-//    public static Authentication getAuthentication(String token) {
-//
-//        Claims claims = getClaimsFromToken(token);
-//        if (claims.get("auth") == null) {
-//            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-//        }
-//
-//        UserEntity user = ConvertUtil.convertValue(claims.get(AUTHORITIES_KEY), UserEntity.class);
-//        MemberPrincipal memberPrincipal = new MemberPrincipal(user, Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())));
-//
-//        return new UsernamePasswordAuthenticationToken(memberPrincipal, "", memberPrincipal.getAuthorities());
-//    }
-//
+    public static Authentication getAuthentication(String token) {
+        Claims claims = getClaimsFromToken(token);
+        Long userNo = Long.valueOf(claims.getSubject());
+        String oauthId = claims.get(Claim.OAUTH_ID.getKey(), String.class);
+        String oauthType = claims.get(Claim.OAUTH_TYPE.getKey(), String.class);
+        String role = claims.get(Claim.ROLE.getKey(), String.class);
+        UserEntity user = UserEntity.builder().userNo(userNo).oauthId(oauthId).oauthType(OAuthType.valueOf(oauthType)).role(Role.valueOf(role)).build();
+        UserPrincipal userPrincipal = new UserPrincipal(user);
+        return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
+    }
+
 //    public static UserEntity getMemberInfoFromToken(String token) {
 //        Claims claims = getClaimsFromToken(token);
 //        if (claims.get(AUTHORITIES_KEY) == null) {
@@ -203,6 +203,37 @@ public class JWTUtils {
     }
 
     /**
+     * 토큰 상태 반환
+     * @param token
+     * @return TokenStatus
+     */
+    private static TokenStatus getTokenStatus(String token) {
+        try {
+            Jwts.parserBuilder()
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(ACCESS_SECRET_KEY))
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            return TokenStatus.AUTHENTICATED;
+        } catch (ExpiredJwtException e) {
+            log.error(ErrorCode.TOKEN_EXPIRED.getErrorMessage());
+            return TokenStatus.EXPIRED;
+        } catch (JwtException e) {
+            throw new JwtException(e.getMessage());
+        }
+    }
+
+    /**
+     * 토큰 정보를 기반으로 비공개 Claims 정보를 반환
+     * @param token
+     * @return Claims
+     */
+    public static String getPrivateClaim(String token, Claim claim) {
+        Claims claimsFromToken = getClaimsFromToken(token);
+        return claimsFromToken.get(claim.getKey(), String.class);
+    }
+
+    /**
      * JWT Payload의 subject 정보 반환
      * @param token
      * @return String
@@ -216,7 +247,6 @@ public class JWTUtils {
                 .getSubject();
     }
 
-
     private Key getSigningKey(String secretKey) {
         String encodedKey = encodeToBase64(secretKey);
         return Keys.hmacShaKeyFor(encodedKey.getBytes(StandardCharsets.UTF_8));
@@ -225,6 +255,5 @@ public class JWTUtils {
     private String encodeToBase64(String secretKey) {
         return Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
-
 
 }
