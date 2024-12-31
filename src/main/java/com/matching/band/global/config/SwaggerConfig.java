@@ -13,6 +13,7 @@ import io.swagger.v3.oas.models.security.SecurityScheme;
 import io.swagger.v3.oas.models.servers.Server;
 import org.springdoc.core.customizers.GlobalOpenApiCustomizer;
 import org.springdoc.core.models.GroupedOpenApi;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -29,16 +30,19 @@ public class SwaggerConfig {
     private final String ACCESS_TOKEN = "AccessToken";
     private final String REFRESH_TOKEN = "RefreshToken";
     SecurityRequirement securityRequirement = new SecurityRequirement().addList(ACCESS_TOKEN).addList(REFRESH_TOKEN);
+    private final String URL;
+
+    public SwaggerConfig(@Value("${url.path.swagger}")  String URL) {
+        this.URL = URL;
+    }
 
     @Bean
     public OpenAPI openAPI() {
-        Server localServer = new Server();
-        Server devServer = new Server();
-        localServer.setUrl("http://localhost:8080");
-        devServer.setUrl("http://sungmin999.gonetis.com");
+        Server server = new Server();
+        server.setUrl(URL);
 
         return new OpenAPI()
-                .servers(List.of(localServer, devServer))
+                .servers(List.of(server))
                 .addSecurityItem(securityRequirement)
                 .components(componentsInfo())
                 .info(apiInfo());

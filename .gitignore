@@ -16,8 +16,8 @@ build/
 bin/
 !**/src/main/**/bin/
 !**/src/test/**/bin/
-/src/main/resources/application.*
-/src/main/resources/config/**
+/src/main/resources/application*.*
+/src/main/resources/config/application*.*
 
 ### IntelliJ IDEA ###
 .idea
