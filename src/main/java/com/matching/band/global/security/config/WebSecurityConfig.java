@@ -23,7 +23,7 @@ import org.springframework.web.cors.CorsUtils;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class WebSecurityConfig {
-    public static final String[] PERMITTED_URI = {"/v3/**", "/swagger-ui/**", "/login", "/user/test"};
+    public static final String[] PERMITTED_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/login", "/user/test"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
     private final CustomOAuth2UserService customOAuthService;

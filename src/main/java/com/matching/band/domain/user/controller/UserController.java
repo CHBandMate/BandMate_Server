@@ -3,6 +3,7 @@ package com.matching.band.domain.user.controller;
 import com.matching.band.domain.user.dto.SignUpRequest;
 import com.matching.band.domain.user.service.UserService;
 import com.matching.band.global.util.response.ApiResponse;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,9 +18,9 @@ public class UserController {
         return ApiResponse.success();
     }
 
+    @Operation(summary = "Swagger 테스트", description = "Swagger 테스트 API 입니다.")
     @GetMapping("/test")
     public ApiResponse<String> test() {
-        System.out.println("asdasdasdasdasdaddsadas");
         return ApiResponse.success("테스트 성공!");
     }
 
