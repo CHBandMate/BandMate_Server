@@ -9,7 +9,7 @@ public enum Auth {
     ACCESS_TYPE("access"),
     REFRESH_TYPE("refresh"),
     ACCESS_HEADER("Authorization"),
-    REFRESH_HEADER("Authorization-Refresh"),
+    REFRESH_HEADER("Refresh"),
     ACCESS_PREFIX("Bearer ")
     ;
 

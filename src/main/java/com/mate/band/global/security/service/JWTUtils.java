@@ -140,7 +140,7 @@ public class JWTUtils {
     /******************************************** 토큰 검증 ********************************************/
 
     /**
-     * Header 내에 토큰을 추출 (사용 X)
+     * Header 내에 토큰을 추출
      * @param header 헤더
      * @return String
      */
@@ -159,8 +159,8 @@ public class JWTUtils {
      * @param token
      * @return boolean
      */
-    public static boolean isValidToken(String token) {
-        return getTokenStatus(token) == TokenStatus.AUTHENTICATED;
+    public static boolean isValidToken(Auth auth, String token) {
+        return getTokenStatus(auth, token) == TokenStatus.AUTHENTICATED;
     }
 
     /**
@@ -197,16 +197,17 @@ public class JWTUtils {
      * @param token
      * @return TokenStatus
      */
-    private static TokenStatus getTokenStatus(String token) {
+    public static TokenStatus getTokenStatus(Auth auth, String token) {
+        String secretKey = Objects.equals(auth.getValue(), Auth.ACCESS_TYPE.getValue()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
         try {
             Jwts.parserBuilder()
-                    .setSigningKey(DatatypeConverter.parseBase64Binary(ACCESS_SECRET_KEY))
+                    .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
                     .build()
                     .parseClaimsJws(token)
                     .getBody();
             return TokenStatus.AUTHENTICATED;
         } catch (ExpiredJwtException e) {
-            log.error(ErrorCode.TOKEN_EXPIRED.getErrorMessage());
+            log.warn(ErrorCode.TOKEN_EXPIRED.getErrorMessage());
             return TokenStatus.EXPIRED;
         } catch (JwtException e) {
             throw new JwtException(e.getMessage());
@@ -228,14 +229,28 @@ public class JWTUtils {
      * @param token
      * @return String
      */
-    public static String getSubjectFromToken(String token) {
+    public static String getSubjectFromToken(Auth auth, String token) {
+        String secretKey = Objects.equals(auth.getValue(), Auth.ACCESS_TYPE.getValue()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
         return Jwts.parserBuilder()
-                .setSigningKey(DatatypeConverter.parseBase64Binary(ACCESS_SECRET_KEY))
+                .setSigningKey(DatatypeConverter.parseBase64Binary(secretKey))
                 .build()
                 .parseClaimsJws(token)
                 .getBody()
                 .getSubject();
     }
+
+    /**
+     * 만료 된 JWT Payload의 subject 정보 반환
+     * @param token
+     * @return String
+     */
+//    public static String getSubjectFromExpiredToken(String token) {
+//        try {
+//            return getSubjectFromToken(token);
+//        } catch (ExpiredJwtException e) {
+//            return e.getClaims().getSubject();
+//        }
+//    }
 
     private Key getSigningKey(String secretKey) {
         String encodedKey = encodeToBase64(secretKey);
@@ -245,5 +260,6 @@ public class JWTUtils {
     private String encodeToBase64(String secretKey) {
         return Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
+
 
 }

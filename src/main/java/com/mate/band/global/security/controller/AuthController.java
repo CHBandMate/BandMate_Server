@@ -1,10 +1,12 @@
 package com.mate.band.global.security.controller;
 
+import com.mate.band.global.security.constants.Auth;
 import com.mate.band.global.security.dto.TokenRequest;
 import com.mate.band.global.security.service.AuthService;
 import com.mate.band.global.util.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -17,11 +19,18 @@ public class AuthController {
 
     private final AuthService authService;
 
-    @Operation(summary = "토큰 발급", description = "소셜 로그인 후 " +
-            "임시토큰과 식별자를 통해 AccessToken, RefreshToken 발급")
+    @Operation(summary = "토큰 발급",
+            description = "소셜 로그인 후 임시토큰과 식별자를 통해 AccessToken, RefreshToken 발급")
     @PostMapping("/token")
     public ApiResponse<?> issueToken(HttpServletResponse response, @RequestBody TokenRequest tokenRequest) {
         authService.issueToken(response, tokenRequest);
+        return ApiResponse.success();
+    }
+
+    @GetMapping("/token/reissue")
+    public ApiResponse<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
+        String refreshToken = request.getHeader(Auth.REFRESH_HEADER.getValue());
+        authService.reIssueToken(response, refreshToken);
         return ApiResponse.success();
     }
 }

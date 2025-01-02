@@ -1,5 +1,6 @@
 package com.mate.band.global.util.response;
 
+import com.mate.band.global.exception.ErrorCode;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -14,6 +15,11 @@ import lombok.Getter;
 public class ErrorData {
     private String errorCode;
     private String errorMessage;
+
+    public ErrorData(ErrorCode errorCode) {
+        this.errorCode = errorCode.getErrorCode();
+        this.errorMessage = errorCode.getErrorMessage();
+    }
 
     @Builder
     public ErrorData(String errorCode, String errorMessage) {
