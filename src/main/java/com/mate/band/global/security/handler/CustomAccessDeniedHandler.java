@@ -1,7 +1,7 @@
 package com.mate.band.global.security.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mate.band.global.util.exception.ErrorCode;
+import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.util.response.ApiResponse;
 import com.mate.band.global.util.response.ErrorData;
 import jakarta.servlet.ServletException;

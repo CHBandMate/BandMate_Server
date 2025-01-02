@@ -1,4 +1,4 @@
-package com.mate.band.global.util.exception;
+package com.mate.band.global.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 

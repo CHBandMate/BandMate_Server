@@ -1,11 +1,10 @@
 package com.mate.band.global.security.service;
 
 import com.mate.band.domain.user.entity.UserEntity;
-import com.mate.band.domain.user.repository.UserRepository;
+import com.mate.band.global.exception.BusinessException;
+import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.security.constants.*;
 import com.mate.band.global.security.domain.UserPrincipal;
-import com.mate.band.global.util.exception.BusinessException;
-import com.mate.band.global.util.exception.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
@@ -25,12 +24,12 @@ import java.util.*;
 @RequiredArgsConstructor
 @Slf4j
 public class JWTUtils {
+
     private static String ACCESS_SECRET_KEY;
     private static String REFRESH_SECRET_KEY;
     private static String EXPIRED_TYPE;
     private static long ACCESS_EXPIRED_TIME;   // AccessToken 만료 시간
     private static long REFRESH_EXPIRED_TIME;  // RefreshToken 만료 시간
-    private final UserRepository userRepository;
 
     @Value("${jwt.secret.access}")
     private void setAccessSecretKey(String value){
@@ -179,15 +178,6 @@ public class JWTUtils {
         UserPrincipal userPrincipal = new UserPrincipal(user);
         return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
     }
-
-//    public static UserEntity getMemberInfoFromToken(String token) {
-//        Claims claims = getClaimsFromToken(token);
-//        if (claims.get(AUTHORITIES_KEY) == null) {
-//            throw new RuntimeException("권한 정보가 없는 토큰입니다.");
-//        }
-//
-//        return ConvertUtil.convertValue(claims.get(AUTHORITIES_KEY), UserEntity.class);
-//    }
 
     /**
      * 토큰 정보를 기반으로 Claims 정보를 반환

@@ -3,13 +3,14 @@ package com.mate.band.global.security.filter;
 import com.mate.band.global.security.constants.Auth;
 import com.mate.band.global.security.constants.Claim;
 import com.mate.band.global.security.service.JWTUtils;
-import com.mate.band.global.util.exception.BusinessException;
-import com.mate.band.global.util.exception.ErrorCode;
+import com.mate.band.global.exception.BusinessException;
+import com.mate.band.global.exception.ErrorCode;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 
 import static com.mate.band.global.security.config.WebSecurityConfig.PERMITTED_URI;
 
+@Slf4j
 @RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
 

@@ -1,8 +1,8 @@
-package com.mate.band.global.util.exception.handler;
+package com.mate.band.global.exception.handler;
 
 import com.mate.band.global.util.response.ApiResponse;
 import com.mate.band.global.util.response.ErrorData;
-import com.mate.band.global.util.exception.ErrorCode;
+import com.mate.band.global.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
