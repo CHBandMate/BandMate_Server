@@ -15,7 +15,7 @@ import java.io.IOException;
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private final String LOGIN_URL;
 
-    public OAuth2FailureHandler(@Value("${url.base}") String BASE_URL, @Value("${url.path.login}") String LOGIN_PATH) {
+    public OAuth2FailureHandler(@Value("${url.client}") String BASE_URL, @Value("${url.path.login}") String LOGIN_PATH) {
         this.LOGIN_URL = BASE_URL + LOGIN_PATH;
     }
 

@@ -33,7 +33,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         }
 
         // AccessToken 검증
-        String headerAccessToken = request.getHeader(Auth.ACCESS_HEADER.getKey());
+        String headerAccessToken = request.getHeader(Auth.ACCESS_HEADER.getValue());
         if (headerAccessToken == null || headerAccessToken.equalsIgnoreCase("")) {
             throw new NullPointerException(ErrorCode.TOKEN_NUll.getErrorMessage());
         }
@@ -41,7 +41,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         if (JWTUtils.isValidToken(headerAccessToken)) {
             // Refresh 토큰에 의한 접근 방지
             String tokenType = JWTUtils.getPrivateClaim(headerAccessToken, Claim.TOKEN_TYPE);
-            if(!request.getRequestURI().equals("/auth/reissue") && tokenType.equals(Auth.REFRESH_TYPE.getKey())) {
+            if(!request.getRequestURI().equals("/auth/reissue") && tokenType.equals(Auth.REFRESH_TYPE.getValue())) {
                 throw new BusinessException(ErrorCode.OTHER_TOKEN_ERROR);
             }
             Authentication authentication = JWTUtils.getAuthentication(headerAccessToken);

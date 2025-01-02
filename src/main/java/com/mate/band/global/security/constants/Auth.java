@@ -6,12 +6,12 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum Auth {
-    ACCESS_TYPE("access", "Access 타입"),
-    REFRESH_TYPE("refresh", "Refresh 타입"),
-    ACCESS_HEADER("Authorization", "헤더 Access 토큰"),
-    REFRESH_HEADER("Authorization-Refresh", "헤더 Refresh 토큰")
+    ACCESS_TYPE("access"),
+    REFRESH_TYPE("refresh"),
+    ACCESS_HEADER("Authorization"),
+    REFRESH_HEADER("Authorization-Refresh"),
+    ACCESS_PREFIX("Bearer ")
     ;
 
-    private final String key;
-    private final String desc;
+    private final String value;
 }

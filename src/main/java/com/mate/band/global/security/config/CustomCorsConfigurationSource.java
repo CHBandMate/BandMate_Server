@@ -20,7 +20,7 @@ public class CustomCorsConfigurationSource implements CorsConfigurationSource {
     private final String ALLOWED_ORIGIN;
     private final List<String> ALLOWED_METHODS = List.of("GET", "POST", "PUT", "OPTIONS");
 
-    public CustomCorsConfigurationSource(@Value("${url.cors}") String BASE_URL) {
+    public CustomCorsConfigurationSource(@Value("${url.client}") String BASE_URL) {
         this.ALLOWED_ORIGIN = BASE_URL;
     }
 

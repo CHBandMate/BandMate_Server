@@ -27,17 +27,4 @@ public class UserController {
         return ApiResponse.success("테스트 성공!");
     }
 
-    @Operation(hidden = true)
-    @PostMapping("/redis")
-    public ApiResponse<?> redisSaveTest() {
-        redisService.saveToRedis("key", "value");
-        return ApiResponse.success();
-    }
-
-    @Operation(hidden = true)
-    @GetMapping("/redis")
-    public ApiResponse<String> redisGetTest() {
-        return ApiResponse.success(redisService.getFromRedis("key"));
-    }
-
 }

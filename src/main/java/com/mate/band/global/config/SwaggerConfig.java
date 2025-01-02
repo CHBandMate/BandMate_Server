@@ -74,8 +74,8 @@ public class SwaggerConfig {
 
     private Components componentsInfo() {
         return new Components()
-                .addSecuritySchemes(ACCESS_TOKEN, securityRequirementInfo(Auth.ACCESS_HEADER.getKey()))
-                .addSecuritySchemes(REFRESH_TOKEN, securityRequirementInfo(Auth.REFRESH_HEADER.getKey()));
+                .addSecuritySchemes(ACCESS_TOKEN, securityRequirementInfo(Auth.ACCESS_HEADER.getValue()))
+                .addSecuritySchemes(REFRESH_TOKEN, securityRequirementInfo(Auth.REFRESH_HEADER.getValue()));
     }
 
     private Info apiInfo() {

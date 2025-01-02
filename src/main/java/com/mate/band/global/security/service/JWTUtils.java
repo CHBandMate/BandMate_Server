@@ -64,10 +64,10 @@ public class JWTUtils {
      */
     public static Map<String, String> generateAuthenticatedTokens(UserEntity userEntity) {
         Map<String, String> tokenMap = new HashMap<>();
-        String accessToken = createToken(userEntity, Auth.ACCESS_TYPE.getKey(), ACCESS_EXPIRED_TIME);
-        String refreshToken = createToken(userEntity, Auth.REFRESH_TYPE.getKey(), REFRESH_EXPIRED_TIME);
-        tokenMap.put(Auth.ACCESS_TYPE.getKey(), accessToken);
-        tokenMap.put(Auth.REFRESH_TYPE.getKey(), refreshToken);
+        String accessToken = createToken(userEntity, Auth.ACCESS_TYPE.getValue(), ACCESS_EXPIRED_TIME);
+        String refreshToken = createToken(userEntity, Auth.REFRESH_TYPE.getValue(), REFRESH_EXPIRED_TIME);
+        tokenMap.put(Auth.ACCESS_TYPE.getValue(), accessToken);
+        tokenMap.put(Auth.REFRESH_TYPE.getValue(), refreshToken);
         return tokenMap;
     }
 
@@ -82,7 +82,7 @@ public class JWTUtils {
                 .setClaims(createClaims(userEntity, tokenType))
                 .setSubject(String.valueOf(userEntity.getUserNo()))
                 .setExpiration(createExpiration(expiredTime))
-                .signWith(createSignature(tokenType.equals(Auth.ACCESS_TYPE.getKey()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY), SignatureAlgorithm.HS256);
+                .signWith(createSignature(tokenType.equals(Auth.ACCESS_TYPE.getValue()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY), SignatureAlgorithm.HS256);
         return jwtBuilder.compact();
     }
 

@@ -5,34 +5,40 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
 public class RedisService {
 
     private final String EXPIRED_TYPE;        // 토큰 만료 시간 타입
-    private final long ACCESS_EXPIRED_TIME;   // AccessToken 만료 시간
     private final long REFRESH_EXPIRED_TIME;  // RefreshToken 만료 시간
+    private final long AUTH_TEMP_CODE_EXPIRED_TIME;  // 임시 코드 만료 시간
     private final RedisTemplate<String, Object> redisTemplate;
 
     public RedisService(@Value("${jwt.expired.type}") String EXPIRED_TYPE,
-                        @Value("${jwt.expired.access}") long ACCESS_EXPIRED_TIME,
                         @Value("${jwt.expired.refresh}") long REFRESH_EXPIRED_TIME,
+                        @Value("${jwt.expired.authTemp}") long AUTH_TEMP_CODE_EXPIRED_TIME,
                         RedisTemplate<String, Object> redisTemplate) {
-        this.ACCESS_EXPIRED_TIME = ACCESS_EXPIRED_TIME;
-        this.REFRESH_EXPIRED_TIME = REFRESH_EXPIRED_TIME;
         this.EXPIRED_TYPE = EXPIRED_TYPE;
+        this.REFRESH_EXPIRED_TIME = REFRESH_EXPIRED_TIME;
+        this.AUTH_TEMP_CODE_EXPIRED_TIME = AUTH_TEMP_CODE_EXPIRED_TIME;
         this.redisTemplate = redisTemplate;
     }
 
-    // 데이터 저장
-    public void saveToRedis(String key, String value) {
-        redisTemplate.opsForValue().set(key, value);
+    public String saveAuthTempCode(long userNo) {
+        String authTempCode = UUID.randomUUID().toString();
+        String key = RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode);
+        redisTemplate.opsForValue().set(key, String.valueOf(userNo), AUTH_TEMP_CODE_EXPIRED_TIME, TimeUnit.SECONDS);
+        return authTempCode;
     }
 
-    // 데이터 조회
-    public String getFromRedis(String key) {
-        return (String) redisTemplate.opsForValue().get(key);
+    public boolean validateAuthTempCode(String authTempCode) {
+        return redisTemplate.opsForValue().get(RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode)) != null;
+    }
+
+    public void deleteAuthTempCode(String authTempCode) {
+        redisTemplate.delete(RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode));
     }
 
     public void saveRefreshToken(long userNo, String refreshToken) {
