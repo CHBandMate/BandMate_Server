@@ -1,31 +1,27 @@
 package com.mate.band.global.security.filter;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mate.band.global.config.RedisService;
-import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
+import com.mate.band.global.exception.TokenExpiredException;
+import com.mate.band.global.exception.TokenNullException;
 import com.mate.band.global.security.constants.Auth;
 import com.mate.band.global.security.constants.Claim;
 import com.mate.band.global.security.constants.TokenStatus;
 import com.mate.band.global.security.service.AuthService;
 import com.mate.band.global.security.service.JWTUtils;
-import com.mate.band.global.util.response.ApiResponse;
-import com.mate.band.global.util.response.ErrorData;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.json.simple.JSONObject;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.JwtException;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.Map;
 
 import static com.mate.band.global.security.config.WebSecurityConfig.PERMITTED_URI;
 
@@ -47,26 +43,24 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         // AccessToken 검증
         String accessToken = JWTUtils.getTokenFromHeader(request.getHeader(Auth.ACCESS_HEADER.getValue()));
         if (accessToken == null || accessToken.equalsIgnoreCase("")) {
-            throw new NullPointerException(ErrorCode.TOKEN_NUll.getErrorMessage());
+            throw new TokenNullException(ErrorCode.TOKEN_NUll.getErrorMessage());
         }
 
         TokenStatus tokenStatus = JWTUtils.getTokenStatus(Auth.ACCESS_TYPE, accessToken);
-        if (tokenStatus == TokenStatus.AUTHENTICATED) {
-            // Refresh 토큰에 의한 접근 방지
-            String tokenType = JWTUtils.getPrivateClaim(accessToken, Claim.TOKEN_TYPE);
-            if(tokenType.equals(Auth.REFRESH_TYPE.getValue())) {
-                throw new BusinessException(ErrorCode.OTHER_TOKEN_ERROR);
-            }
-            Authentication authentication = JWTUtils.getAuthentication(accessToken);
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            log.info("토큰 검증 완료");
-
-            filterChain.doFilter(request, response);
-            return;
+        if (tokenStatus != TokenStatus.AUTHENTICATED) {
+            throw new TokenExpiredException(ErrorCode.TOKEN_EXPIRED.getErrorMessage());
         }
 
-        // 로그아웃 처리
-        logout(response);
+        // Refresh 토큰에 의한 접근 방지
+        String tokenType = JWTUtils.getPrivateClaim(accessToken, Claim.TOKEN_TYPE);
+        if (tokenType.equals(Auth.REFRESH_TYPE.getValue())) {
+            throw new JwtException(ErrorCode.OTHER_TOKEN_ERROR.getErrorMessage());
+        }
+
+        Authentication authentication = JWTUtils.getAuthentication(accessToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        filterChain.doFilter(request, response);
     }
 
     private boolean isPermittedURI(String requestURI) {
@@ -75,15 +69,6 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 String replace = permitted.replace("*", "");
                 return requestURI.contains(replace) || replace.contains(requestURI);
             });
-    }
-
-    private void logout(HttpServletResponse response) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        JSONObject responseBody =
-                new JSONObject(objectMapper.convertValue(ApiResponse.fail(HttpStatus.UNAUTHORIZED, new ErrorData(ErrorCode.TOKEN_EXPIRED)), Map.class));
-        response.setStatus(ErrorCode.TOKEN_EXPIRED.getStatusCode());
-        response.setContentType("application/json");
-        response.getWriter().print(responseBody);
     }
 
 }

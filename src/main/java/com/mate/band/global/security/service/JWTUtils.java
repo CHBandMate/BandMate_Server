@@ -1,8 +1,8 @@
 package com.mate.band.global.security.service;
 
 import com.mate.band.domain.user.entity.UserEntity;
-import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
+import com.mate.band.global.exception.TokenNullException;
 import com.mate.band.global.security.constants.*;
 import com.mate.band.global.security.domain.UserPrincipal;
 import io.jsonwebtoken.*;
@@ -149,7 +149,7 @@ public class JWTUtils {
         try {
             token = header.split(" ")[1];
         } catch (NullPointerException e) {
-            throw new BusinessException(ErrorCode.TOKEN_NUll.getErrorMessage());
+            throw new TokenNullException(ErrorCode.TOKEN_NUll.getErrorMessage());
         }
         return token;
     }
@@ -207,7 +207,6 @@ public class JWTUtils {
                     .getBody();
             return TokenStatus.AUTHENTICATED;
         } catch (ExpiredJwtException e) {
-            log.warn(ErrorCode.TOKEN_EXPIRED.getErrorMessage());
             return TokenStatus.EXPIRED;
         } catch (JwtException e) {
             throw new JwtException(e.getMessage());

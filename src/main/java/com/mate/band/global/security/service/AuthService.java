@@ -36,7 +36,7 @@ public class AuthService {
         }
     }
 
-    public void reIssueToken(HttpServletResponse response, String refreshToken) {
+    public void reissueToken(HttpServletResponse response, String refreshToken) {
         if (!JWTUtils.isValidToken(Auth.REFRESH_TYPE, refreshToken)) {
             throw new BusinessException(ErrorCode.TOKEN_NOT_ALLOWED);
         }

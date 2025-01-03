@@ -30,7 +30,7 @@ public class AuthController {
     @GetMapping("/token/reissue")
     public ApiResponse<?> reissueToken(HttpServletRequest request, HttpServletResponse response) {
         String refreshToken = request.getHeader(Auth.REFRESH_HEADER.getValue());
-        authService.reIssueToken(response, refreshToken);
+        authService.reissueToken(response, refreshToken);
         return ApiResponse.success();
     }
 }
