@@ -13,8 +13,8 @@ import lombok.Getter;
  */
 @Getter
 public class ErrorData {
-    private String errorCode;
-    private String errorMessage;
+    private final String errorCode;
+    private final String errorMessage;
 
     public ErrorData(ErrorCode errorCode) {
         this.errorCode = errorCode.getErrorCode();

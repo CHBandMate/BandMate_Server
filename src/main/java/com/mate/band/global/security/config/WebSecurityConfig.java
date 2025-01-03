@@ -1,12 +1,10 @@
 package com.mate.band.global.security.config;
 
-import com.mate.band.global.config.RedisService;
 import com.mate.band.global.security.filter.ExceptionHandlerFilter;
 import com.mate.band.global.security.filter.JWTAuthorizationFilter;
 import com.mate.band.global.security.handler.CustomAccessDeniedHandler;
 import com.mate.band.global.security.handler.OAuth2FailureHandler;
 import com.mate.band.global.security.handler.OAuth2SuccessHandler;
-import com.mate.band.global.security.service.AuthService;
 import com.mate.band.global.security.service.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
@@ -28,15 +26,13 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
-    public static final String[] PERMITTED_URI = {"/login", "/auth/**"};
+    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
     private final CustomOAuth2UserService customOAuthService;
     private final OAuth2SuccessHandler successHandler;
     private final OAuth2FailureHandler failureHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final AuthService authService;
-    private final RedisService redisService;
 
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer() {
@@ -59,7 +55,7 @@ public class WebSecurityConfig {
                         .requestMatchers(PERMITTED_URI).permitAll()
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용
-                .addFilterBefore(new JWTAuthorizationFilter(authService, redisService), UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(new ExceptionHandlerFilter(), JWTAuthorizationFilter.class)
                 .exceptionHandling(exceptionHandlingConfigurer -> exceptionHandlingConfigurer.accessDeniedHandler(customAccessDeniedHandler))
                 // OAuth 로그인 설정

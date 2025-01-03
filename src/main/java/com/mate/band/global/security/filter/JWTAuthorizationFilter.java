@@ -1,13 +1,11 @@
 package com.mate.band.global.security.filter;
 
-import com.mate.band.global.config.RedisService;
 import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.exception.TokenExpiredException;
 import com.mate.band.global.exception.TokenNullException;
 import com.mate.band.global.security.constants.Auth;
 import com.mate.band.global.security.constants.Claim;
 import com.mate.band.global.security.constants.TokenStatus;
-import com.mate.band.global.security.service.AuthService;
 import com.mate.band.global.security.service.JWTUtils;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,9 +26,6 @@ import static com.mate.band.global.security.config.WebSecurityConfig.PERMITTED_U
 @Slf4j
 @RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {
-
-    private final AuthService authService;
-    private final RedisService redisService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -57,9 +52,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
             throw new JwtException(ErrorCode.OTHER_TOKEN_ERROR.getErrorMessage());
         }
 
-        Authentication authentication = JWTUtils.getAuthentication(accessToken);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-
+        setAuthentication(accessToken);
         filterChain.doFilter(request, response);
     }
 
@@ -69,6 +62,11 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
                 String replace = permitted.replace("*", "");
                 return requestURI.contains(replace) || replace.contains(requestURI);
             });
+    }
+
+    private void setAuthentication(String accessToken) {
+        Authentication authentication = JWTUtils.getAuthentication(accessToken);
+        SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 
 }

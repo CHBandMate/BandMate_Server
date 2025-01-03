@@ -2,7 +2,6 @@ package com.mate.band.domain.user.controller;
 
 import com.mate.band.domain.user.dto.SignUpRequest;
 import com.mate.band.domain.user.service.UserService;
-import com.mate.band.global.config.RedisService;
 import com.mate.band.global.util.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class UserController {
     private final UserService userService;
-    private final RedisService redisService;
 
     @Operation(hidden = true)
     @PostMapping("/signUp")
