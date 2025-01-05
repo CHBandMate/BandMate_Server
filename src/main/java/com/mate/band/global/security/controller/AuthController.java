@@ -38,6 +38,7 @@ public class AuthController {
         return ApiResponse.success();
     }
 
+    @Operation(hidden = true)
     @GetMapping("/logout")
     public void logout(@AuthUser UserEntity user) {
         System.out.println(user.getUserNo());

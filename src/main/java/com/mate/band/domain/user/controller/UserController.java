@@ -21,10 +21,4 @@ public class UserController {
         return ApiResponse.success();
     }
 
-    @Operation(summary = "Swagger 테스트", description = "Swagger 테스트 API 입니다.")
-    @GetMapping("/test")
-    public ApiResponse<String> test() {
-        return ApiResponse.success("테스트 성공!");
-    }
-
 }
