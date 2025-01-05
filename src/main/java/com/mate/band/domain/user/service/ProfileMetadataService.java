@@ -1,7 +1,8 @@
 package com.mate.band.domain.user.service;
 
-import com.mate.band.domain.common.constants.ProfileMetadata;
 import com.mate.band.domain.common.repository.CommonCodeRepository;
+import com.mate.band.domain.common.repository.RegionRepository;
+import com.mate.band.domain.user.constants.ProfileMetadata;
 import com.mate.band.domain.user.dto.MetaDataResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 public class ProfileMetadataService {
 
     private final CommonCodeRepository commonCodeRepository;
+    private final RegionRepository regionRepository;
 
     public MetaDataResponse getProfileMetadata() {
         return MetaDataResponse.builder()
@@ -19,5 +21,12 @@ public class ProfileMetadataService {
                 .snsPlatform(commonCodeRepository.findValueByCodeGroup(ProfileMetadata.SNS_PLATFORM.getCodeGroup()))
                 .build();
     }
+
+//    public RegionResponse getDistrictData() {
+//        List<RegionData> regions = regionRepository.getRegionsWithDistricts();
+//        for (RegionData regionData : regions) {
+//
+//        }
+//    }
 
 }

@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public interface CommonCodeRepository extends JpaRepository<CommonCodeEntity, Long> {
 
-    @Query("select new com.mate.band.domain.common.dto.CommonCode(cc.codeValue, cc.codeName) as name from CommonCodeEntity cc where cc.codeGroup = :codeGroup")
+    @Query("select new com.mate.band.domain.common.dto.CommonCode(cc.codeValue, cc.codeName) from CommonCodeEntity cc where cc.codeGroup = :codeGroup")
     List<CommonCode> findValueByCodeGroup(String codeGroup);
 
     @Query("select cc from CommonCodeEntity cc where cc.codeValue = :codeValue")
