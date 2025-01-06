@@ -63,7 +63,7 @@ public class AuthService {
 
         // RefreshToken Redis 저장
         try {
-            redisService.saveRefreshToken(user.getUserNo(), refreshToken);
+            redisService.saveRefreshToken(user.getId(), refreshToken);
         } catch (RedisConnectionFailureException e) {
             log.error("Redis 연결 실패: {}", e.getLocalizedMessage());
         } catch (SerializationException e) {

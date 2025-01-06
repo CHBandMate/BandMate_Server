@@ -41,7 +41,7 @@ public class AuthController {
     @Operation(hidden = true)
     @GetMapping("/logout")
     public void logout(@AuthUser UserEntity user) {
-        System.out.println(user.getUserNo());
+        System.out.println(user.getId());
         System.out.println(user.getRole().getKey());
     }
 }

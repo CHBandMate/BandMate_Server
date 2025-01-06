@@ -80,7 +80,7 @@ public class JWTUtils {
         JwtBuilder jwtBuilder = Jwts.builder()
                 .setHeader(createHeader())
                 .setClaims(createClaims(userEntity, tokenType))
-                .setSubject(String.valueOf(userEntity.getUserNo()))
+                .setSubject(String.valueOf(userEntity.getId()))
                 .setExpiration(createExpiration(expiredTime))
                 .signWith(createSignature(tokenType.equals(Auth.ACCESS_TYPE.getValue()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY), SignatureAlgorithm.HS256);
         return jwtBuilder.compact();
@@ -174,7 +174,7 @@ public class JWTUtils {
         String oauthId = claims.get(Claim.OAUTH_ID.getKey(), String.class);
         String oauthType = claims.get(Claim.OAUTH_TYPE.getKey(), String.class);
         String role = claims.get(Claim.ROLE.getKey(), String.class);
-        UserEntity user = UserEntity.builder().userNo(userNo).oauthId(oauthId).oauthType(OAuthType.valueOf(oauthType)).role(Role.valueOf(role)).build();
+        UserEntity user = UserEntity.builder().id(userNo).oauthId(oauthId).oauthType(OAuthType.valueOf(oauthType)).role(Role.valueOf(role)).build();
         UserPrincipal userPrincipal = new UserPrincipal(user);
         return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
     }

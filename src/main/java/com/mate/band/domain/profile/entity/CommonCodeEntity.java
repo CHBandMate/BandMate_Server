@@ -1,10 +1,12 @@
-package com.mate.band.domain.common.entity;
+package com.mate.band.domain.profile.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Entity
@@ -16,7 +18,7 @@ public class CommonCodeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", nullable = false)
+    @Column(name = "code_id", nullable = false)
     private Long id;
 
     @Column(name = "code_group", length = 50, nullable = false)
@@ -37,5 +39,8 @@ public class CommonCodeEntity {
     @CreationTimestamp
     @Column(name = "created_at", columnDefinition = "DATETIME", updatable = false)
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PositionMappingEntity> positions = new ArrayList<>();
 
 }

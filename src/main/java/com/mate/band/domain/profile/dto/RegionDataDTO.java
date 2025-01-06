@@ -1,6 +1,6 @@
-package com.mate.band.domain.common.dto;
+package com.mate.band.domain.profile.dto;
 
-public record RegionData(
+public record RegionDataDTO(
         long regionId,
         String regionName,
         long districtId,

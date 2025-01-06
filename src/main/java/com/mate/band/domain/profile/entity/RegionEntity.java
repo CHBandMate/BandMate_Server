@@ -1,4 +1,4 @@
-package com.mate.band.domain.common.entity;
+package com.mate.band.domain.profile.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -10,13 +10,12 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "regions")
 @Entity
-@Builder
 @AllArgsConstructor
 public class RegionEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "region_id")
     private Long id;
 
     @Column(name = "region_name", length = 20, unique = true)
@@ -24,4 +23,5 @@ public class RegionEntity {
 
     @OneToMany(mappedBy = "region", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DistrictEntity> districts = new ArrayList<>();
+
 }

@@ -42,7 +42,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 임시 코드 생성
         String authTempCode = "";
         try {
-            authTempCode = redisService.saveAuthTempCode(user.getUserNo());
+            authTempCode = redisService.saveAuthTempCode(user.getId());
         } catch (RedisConnectionFailureException e) {
             log.error("Redis 연결 실패: {}", e.getLocalizedMessage());
         } catch (SerializationException e) {
@@ -52,7 +52,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         }
 
         return UriComponentsBuilder.fromUriString(AUTH_URL)
-                .queryParam("identifier", user.getUserNo())
+                .queryParam("identifier", user.getId())
                 .queryParam("code", authTempCode)
                 .build()
                 .toUriString();

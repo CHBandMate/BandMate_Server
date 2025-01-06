@@ -1,9 +1,9 @@
-package com.mate.band.domain.common.dto;
+package com.mate.band.domain.profile.dto;
 
 import lombok.Builder;
 
 @Builder
-public record DistrictData(
+public record DistrictDataDTO(
         long districtId,
         String districtName
 ) {
