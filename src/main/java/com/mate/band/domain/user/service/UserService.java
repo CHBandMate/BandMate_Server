@@ -13,6 +13,7 @@ import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.security.constants.Role;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,8 +26,9 @@ public class UserService {
     private final CommonCodeRepository commonCodeRepository;
     private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
-    private DistrictMappingRepository districtMappingRepository;
+    private final DistrictMappingRepository districtMappingRepository;
 
+    @Transactional
     public void registerProfile(UserEntity user, RegisterProfileRequestDTO registerProfileRequest) {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException("존재하지 않는 회원"));
         if (userEntity.getRole() != Role.NOT_REGISTERED) {
@@ -34,28 +36,22 @@ public class UserService {
         }
         userEntity.registryUser(registerProfileRequest);
 
-        List<String> positions = registerProfileRequest.position();
-        List<Integer> districts = registerProfileRequest.district();
-
-        for (String position : positions) {
-            PositionMappingEntity positionMappingEntity =
-                    PositionMappingEntity.builder()
+        List<PositionMappingEntity> positionEntityList = registerProfileRequest.position().stream().map(position ->
+                PositionMappingEntity.builder()
                         .type(MappingType.USER.getValue())
                         .user(userEntity)
                         .position(commonCodeRepository.findByCodeInfo(Metadata.BAND_POSITION.getCodeGroup(), position))
-                        .build();
-            positionMappingRepository.save(positionMappingEntity);
-        }
+                        .build()).toList();
 
-        for (Integer district : districts) {
-            DistrictMappingEntity districtMappingEntity =
-                    DistrictMappingEntity.builder()
-                            .type(MappingType.USER.getValue())
-                            .user(userEntity)
-                            .district(districtRepository.findById(Long.valueOf(district)).get())
-                            .build();
-            districtMappingRepository.save(districtMappingEntity);
-        }
+        List<DistrictMappingEntity> districtEntityList = registerProfileRequest.district().stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.USER.getValue())
+                        .user(userEntity)
+                        .district(districtRepository.findById(Long.valueOf(district)).get())
+                        .build()).toList();
+
+        positionMappingRepository.saveAll(positionEntityList);
+        districtMappingRepository.saveAll(districtEntityList);
     }
 
 }

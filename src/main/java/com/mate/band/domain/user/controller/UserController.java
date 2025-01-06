@@ -21,7 +21,7 @@ public class UserController {
     private final UserService userService;
 
     @Operation(summary = "회원가입 후 개인 프로필 등록")
-    @PostMapping("/profile")
+    @PostMapping("/signup")
     public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterProfileRequestDTO registerProfileRequest) {
         userService.registerProfile(user, registerProfileRequest);
         return ApiResponse.success();

@@ -53,6 +53,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS pre-flight 요청 허용
                         .requestMatchers(PERMITTED_URI).permitAll()
+                        .requestMatchers("/user/signup").hasRole("NOT_REGISTERED")
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용
                 .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

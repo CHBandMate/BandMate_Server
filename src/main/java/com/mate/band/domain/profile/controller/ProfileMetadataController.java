@@ -22,7 +22,7 @@ public class ProfileMetadataController {
     private final ProfileMetadataService profileMetadataService;
 
     @Operation(summary = "음악 장르 / 밴드 포지션 / SNS 플랫폼 항목 조회")
-    @GetMapping()
+    @GetMapping
     public ApiResponse<ProfileMetaDataResponseDTO> getProfileMetaData() {
         return ApiResponse.success(profileMetadataService.getProfileMetadata());
     }
