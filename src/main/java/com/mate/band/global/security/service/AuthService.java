@@ -56,6 +56,7 @@ public class AuthService {
     }
 
     private void saveToken(HttpServletResponse response, long userNo) {
+        // TODO GlobalException 예외 설정 필요
         UserEntity user = userRepository.findById(userNo).orElseThrow(() -> new BusinessException("존재하지 않는 회원"));
         Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
         String accessToken = tokenMap.get(Auth.ACCESS_TYPE.getValue());

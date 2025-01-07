@@ -37,7 +37,7 @@ public record RegisterProfileRequestDTO(
         List<ProfileSNSUrlDTO> snsUrls,
 
         @Schema(description = "합주 가능 지역 코드", example = "[1, 2, 3]")
-        List<Integer> district,
+        List<Long> district,
 
         @Schema(description = "선호 장르 코드", example = "[\"kpop\", \"indie\", \"jazz\"]")
         List<String> genre,

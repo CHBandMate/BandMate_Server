@@ -21,9 +21,9 @@ public class ProfileMetadataService {
 
     public ProfileMetaDataResponseDTO getProfileMetadata() {
         return ProfileMetaDataResponseDTO.builder()
-                .musicGenre(commonCodeRepository.findValueByCodeGroup(Metadata.MUSIC_GENRE.getCodeGroup()))
-                .position(commonCodeRepository.findValueByCodeGroup(Metadata.BAND_POSITION.getCodeGroup()))
-                .snsPlatform(commonCodeRepository.findValueByCodeGroup(Metadata.SNS_PLATFORM.getCodeGroup()))
+                .musicGenre(commonCodeRepository.findValuesByCodeGroup(Metadata.MUSIC_GENRE.getCodeGroup()))
+                .position(commonCodeRepository.findValuesByCodeGroup(Metadata.BAND_POSITION.getCodeGroup()))
+                .snsPlatform(commonCodeRepository.findValuesByCodeGroup(Metadata.SNS_PLATFORM.getCodeGroup()))
                 .build();
     }
 

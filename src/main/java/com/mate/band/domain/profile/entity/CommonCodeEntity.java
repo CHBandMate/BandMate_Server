@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CommonCodeEntity {
 
+    // TODO 공통 코드 테이블 제거
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "code_id", nullable = false)
@@ -42,5 +43,8 @@ public class CommonCodeEntity {
 
     @OneToMany(mappedBy = "position", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PositionMappingEntity> positions = new ArrayList<>();
+
+    @OneToMany(mappedBy = "genre", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MusicGenreMappingEntity> genres = new ArrayList<>();
 
 }
