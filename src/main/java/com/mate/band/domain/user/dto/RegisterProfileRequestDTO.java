@@ -19,7 +19,7 @@ public record RegisterProfileRequestDTO(
         @Schema(description = "카카오ID", example = "zxcv1234")
         String kakaoId,
 
-        @Schema(description = "포지션 선택 코드", example = "[\"keyboard\", \"vocal\", \"bass\"]")
+        @Schema(description = "포지션 선택 코드", example = "[\"KEYBOARD\", \"VOCAL\", \"BASS\"]")
         List<String> position,
 
         @Schema(description = "보유 악기", example = "[\"fender jazz bass\", \"gibson lespaul\"]")
@@ -39,7 +39,7 @@ public record RegisterProfileRequestDTO(
         @Schema(description = "합주 가능 지역 코드", example = "[1, 2, 3]")
         List<Long> district,
 
-        @Schema(description = "선호 장르 코드", example = "[\"kpop\", \"indie\", \"jazz\"]")
+        @Schema(description = "선호 장르 코드", example = "[\"KPOP\", \"INDIE\", \"JAZZ\"]")
         List<String> genre,
 
         @Schema(description = "프로필 노출 여부", example = "true")

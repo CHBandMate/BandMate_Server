@@ -1,8 +1,13 @@
 package com.mate.band.domain.user.service;
 
+import com.mate.band.domain.common.EnumModel;
 import com.mate.band.domain.profile.constants.MappingType;
-import com.mate.band.domain.profile.constants.Metadata;
-import com.mate.band.domain.profile.entity.*;
+import com.mate.band.domain.profile.constants.MusicGenre;
+import com.mate.band.domain.profile.constants.Position;
+import com.mate.band.domain.profile.entity.DistrictEntity;
+import com.mate.band.domain.profile.entity.DistrictMappingEntity;
+import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
+import com.mate.band.domain.profile.entity.PositionMappingEntity;
 import com.mate.band.domain.profile.repository.*;
 import com.mate.band.domain.user.dto.RegisterProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
@@ -19,7 +24,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final CommonCodeRepository commonCodeRepository;
     private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
@@ -33,24 +37,23 @@ public class UserService {
             throw new BusinessException("이미 등록 된 회원입니다.");
         }
 
-        List<CommonCodeEntity> positions = verifyCommonCode(registerProfileRequest.position(), Metadata.BAND_POSITION);
-        List<CommonCodeEntity> genres = verifyCommonCode(registerProfileRequest.genre(), Metadata.MUSIC_GENRE);
+        verifyMetadataKey(registerProfileRequest.position(), Position.class);
+        verifyMetadataKey(registerProfileRequest.genre(), MusicGenre.class);
         List<DistrictEntity> districts = verifyDistrict(registerProfileRequest.district());
-
         userEntity.registryUser(registerProfileRequest);
 
-        List<PositionMappingEntity> positionMappingEntityList = positions.stream().map(position ->
+        List<PositionMappingEntity> positionMappingEntityList = registerProfileRequest.position().stream().map(position ->
                 PositionMappingEntity.builder()
                         .type(MappingType.USER)
                         .user(userEntity)
-                        .position(position)
+                        .position(Position.valueOf(position))
                         .build()).toList();
 
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = genres.stream().map(genre ->
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = registerProfileRequest.genre().stream().map(genre ->
                 MusicGenreMappingEntity.builder()
                         .type(MappingType.USER)
                         .user(userEntity)
-                        .genre(genre)
+                        .genre(MusicGenre.valueOf(genre))
                         .build()).toList();
 
         List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
@@ -65,12 +68,20 @@ public class UserService {
         districtMappingRepository.saveAll(districtMappingEntityList);
     }
 
-    private List<CommonCodeEntity> verifyCommonCode(List<String> codeList, Metadata metadata) {
-        List<CommonCodeEntity> codeEntityList = commonCodeRepository.findByCodeIn(metadata.getCodeGroup(), codeList);
-        if (codeList.size() != codeEntityList.size()) {
-            throw new BusinessException("유효 하지 않은 코드가 포함 되어 있음");
+    private void verifyMetadataKey(List<String> keyList, Class<? extends EnumModel> enumClass) {
+        EnumModel[] enumConstants = enumClass.getEnumConstants();
+        for (String key : keyList) {
+            boolean isValid = false;
+            for (EnumModel enumConstant : enumConstants) {
+                if (enumConstant.getkey().equals(key)) {
+                    isValid = true;
+                    break;
+                }
+            }
+            if (!isValid) {
+                throw new BusinessException("존재하지 않는 코드");
+            }
         }
-        return codeEntityList;
     }
 
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {

@@ -1,29 +1,35 @@
 package com.mate.band.domain.profile.service;
 
-import com.mate.band.domain.profile.dto.DistrictDataDTO;
-import com.mate.band.domain.profile.dto.RegionDataDTO;
-import com.mate.band.domain.profile.dto.RegionResponseDTO;
-import com.mate.band.domain.profile.repository.CommonCodeRepository;
+import com.mate.band.domain.common.EnumModel;
+import com.mate.band.domain.profile.constants.MusicGenre;
+import com.mate.band.domain.profile.constants.Position;
+import com.mate.band.domain.profile.constants.SnsPlatform;
+import com.mate.band.domain.profile.dto.*;
 import com.mate.band.domain.profile.repository.RegionRepository;
-import com.mate.band.domain.profile.constants.Metadata;
-import com.mate.band.domain.profile.dto.ProfileMetaDataResponseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
 public class ProfileMetadataService {
 
-    private final CommonCodeRepository commonCodeRepository;
     private final RegionRepository regionRepository;
 
     public ProfileMetaDataResponseDTO getProfileMetadata() {
+        List<ProfileMetaDataDTO> musicGenreList = getProfileMetaDataDTOList(MusicGenre.class);
+        List<ProfileMetaDataDTO> positionList = getProfileMetaDataDTOList(Position.class);
+        List<ProfileMetaDataDTO> snsPlatformList = getProfileMetaDataDTOList(SnsPlatform.class);
+
         return ProfileMetaDataResponseDTO.builder()
-                .musicGenre(commonCodeRepository.findValuesByCodeGroup(Metadata.MUSIC_GENRE.getCodeGroup()))
-                .position(commonCodeRepository.findValuesByCodeGroup(Metadata.BAND_POSITION.getCodeGroup()))
-                .snsPlatform(commonCodeRepository.findValuesByCodeGroup(Metadata.SNS_PLATFORM.getCodeGroup()))
+                .musicGenre(musicGenreList)
+                .position(positionList)
+                .snsPlatform(snsPlatformList)
                 .build();
     }
 
@@ -47,10 +53,25 @@ public class ProfileMetadataService {
                                     .build()
                     );
 
-            regionResponse.districts().add(DistrictDataDTO.builder().districtId(districtId).districtName(districtName).build());
+            regionResponse.districts().add(
+                    DistrictDataDTO.builder()
+                            .districtId(districtId)
+                            .districtName(districtName)
+                            .build()
+            );
         }
 
         return new ArrayList<>(regionResponseMap.values());
+    }
+
+    private List<ProfileMetaDataDTO> getProfileMetaDataDTOList(Class<? extends EnumModel> profileMetadataEnum) {
+        return Stream.of(profileMetadataEnum.getEnumConstants())
+                .map(musicGenre ->
+                        ProfileMetaDataDTO.builder()
+                                .key(musicGenre.getkey())
+                                .value(musicGenre.getValue())
+                                .build()
+                ).toList();
     }
 
 }

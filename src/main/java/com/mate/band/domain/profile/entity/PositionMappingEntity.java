@@ -1,6 +1,7 @@
 package com.mate.band.domain.profile.entity;
 
 import com.mate.band.domain.profile.constants.MappingType;
+import com.mate.band.domain.profile.constants.Position;
 import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,7 +27,7 @@ public class PositionMappingEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "code_value")
-    private CommonCodeEntity position;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "position")
+    private Position position;
 }

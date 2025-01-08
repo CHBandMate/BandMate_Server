@@ -6,9 +6,9 @@ import java.util.List;
 
 @Builder
 public record ProfileMetaDataResponseDTO(
-        List<CommonCodeDTO> musicGenre,
-        List<CommonCodeDTO> position,
-        List<CommonCodeDTO> snsPlatform
+        List<ProfileMetaDataDTO> musicGenre,
+        List<ProfileMetaDataDTO> position,
+        List<ProfileMetaDataDTO> snsPlatform
 ) {
 
 }

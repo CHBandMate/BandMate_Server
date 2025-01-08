@@ -91,7 +91,6 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DistrictMappingEntity> regions = new ArrayList<>();
 
-
     public void registryUser(RegisterProfileRequestDTO registerProfile) {
         this.role = Role.USER;
         this.nickname = registerProfile.nickName();

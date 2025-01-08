@@ -26,7 +26,7 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
-    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue"};
+    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/region"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
     private final CustomOAuth2UserService customOAuthService;
@@ -39,8 +39,7 @@ public class WebSecurityConfig {
         return web -> {
             web.ignoring()
                     .requestMatchers(PathRequest.toStaticResources().atCommonLocations())   // 정적 자원 Spring Security 적용 X
-                    .requestMatchers(IGNORING_URI)
-            ;
+                    .requestMatchers(IGNORING_URI);
         };
     }
 
@@ -52,7 +51,7 @@ public class WebSecurityConfig {
                 .formLogin(FormLoginConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS pre-flight 요청 허용
-                        .requestMatchers(PERMITTED_URI).permitAll()
+                        .requestMatchers(PERMITTED_URI).permitAll() // TODO 메인 기본 데이터 조회 추가
                         .requestMatchers("/user/signup").hasRole("NOT_REGISTERED")
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용
