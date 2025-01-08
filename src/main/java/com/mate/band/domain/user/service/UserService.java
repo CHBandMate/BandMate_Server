@@ -8,11 +8,15 @@ import com.mate.band.domain.profile.entity.DistrictEntity;
 import com.mate.band.domain.profile.entity.DistrictMappingEntity;
 import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.profile.entity.PositionMappingEntity;
-import com.mate.band.domain.profile.repository.*;
+import com.mate.band.domain.profile.repository.DistrictMappingRepository;
+import com.mate.band.domain.profile.repository.DistrictRepository;
+import com.mate.band.domain.profile.repository.MusicGenreMappingRepository;
+import com.mate.band.domain.profile.repository.PositionMappingRepository;
 import com.mate.band.domain.user.dto.RegisterProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
+import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.security.constants.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,12 +33,12 @@ public class UserService {
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
 
-    // TODO 예외처리, 리팩토링 필요
+    // TODO 리팩토링
     @Transactional
     public void registerProfile(UserEntity user, RegisterProfileRequestDTO registerProfileRequest) {
-        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException("존재하지 않는 회원"));
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         if (userEntity.getRole() != Role.NOT_REGISTERED) {
-            throw new BusinessException("이미 등록 된 회원입니다.");
+            throw new BusinessException(ErrorCode.REGISTERED_USER);
         }
 
         verifyMetadataKey(registerProfileRequest.position(), Position.class);
@@ -79,7 +83,7 @@ public class UserService {
                 }
             }
             if (!isValid) {
-                throw new BusinessException("존재하지 않는 코드");
+                throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
             }
         }
     }
@@ -87,7 +91,7 @@ public class UserService {
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {
         List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
         if (districts.size() != districtEntityList.size()) {
-            throw new BusinessException("존재 하지 않는 지역 코드가 포함");
+            throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
         }
         return districtEntityList;
     }

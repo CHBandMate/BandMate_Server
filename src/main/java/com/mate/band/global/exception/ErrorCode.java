@@ -23,22 +23,23 @@ public enum ErrorCode {
     BAD_REQUEST_BODY(400, "BAD_REQUEST_BODY", "Request body is insufficient"),        // Request Body가 정보가 잘못된 경우
     BAD_REQUEST_PARAMETER(400, "BAD_REQUEST_PARAMETER", "No request parameter"),           // 파라미터가 존재하지 않는 경우
     ILLEGAL_ARGUMENT(400, "ILLEGAL_ARGUMENT", "Illegal or inappropriate argument"),   // 메소드에 잘못된 인자가 넘어가는 경우
+    NOT_EXIST_CODE(400, "NOT_EXIST_CODE", "존재하지 않는 코드 입니다."),   // 메소드에 잘못된 인자가 넘어가는 경우
     JSON_PARSE(400, "JSON_PARSE", "Json parsing Exception"),                    // Json 파싱 에러가 발생하는 경우
+    REGISTERED_USER(400, "ALREADY_EXIST_USER", "이미 등록 된 회원입니다."),                    // Json 파싱 에러가 발생하는 경우
     OTHER_ERROR(400, "OTHER_ERROR", "Other Error"),                              // 그 외 모든 에러
 
     //************************************************ Auth Error ************************************************//
-    UNAUTHORIZED(401, "UNAUTHORIZED", "Account is Unauthorized"),                        // 인증되지 않은 사용자
-    TOKEN_NOT_ALLOWED(403, "TOKEN_NOT_ALLOWED", "Token is Not Allowed"),                      // 허용되지 않은 토큰
-    TOKEN_EXPIRED(401, "TOKEN_EXPIRED", "Token is Expired"),                              // 토큰 만료
-    TOKEN_NUll(401, "TOKEN_NUll", "Token does not exist"),                             // 헤더에 토큰이 존재하지 않는 경우
-    NOT_ACCESS_TOKEN(403, "NOT_ACCESS_TOKEN", "It's not AccessToken"),                       // Access Token이 아닌 경우
-    NOT_REFRESH_TOKEN(403, "NOT_REFRESH_TOKEN", "It's not RefreshToken"),                     // Refresh Token이 아닌 경우
-    NOT_EXIST_AUTH_IN_TOKEN(401, "NOT_EXIST_AUTH_IN_TOKEN", "Account does not exist in Token"),     // 토큰 내에 사용자 정보가 없는 경우
-    NOT_MATCHED_AUTH(403, "NOT_MATCHED_AUTH", "Account in the token does not match"),        // 토큰 내의 사용자 정보와 요청 사용자의 정보가 일치하지 않는 경우
-    NOT_MATCHED_REFRESH(403, "NOT_MATCHED_REFRESH", "RefreshToken does not match"),             // DB의 RefreshToken과 일치하지 않는 경우
-    TOKEN_PARSING(401, "TOKEN_PARSING", "Token Parsing Error"),                           // 토큰 Parsing 중 에러가 발생하는 경우
-    ACCESS_DENIED(403, "ACCESS_DENIED", "You do not have permission to access this resource."), // 접근 권한이 없는 경우
-    OTHER_TOKEN_ERROR(401, "OTHER_TOKEN_ERROR", "Other Token Error"),                         // 그 외 토큰 관련 에러
+    UNAUTHORIZED(401, "UNAUTHORIZED", "인증 되지 않은 사용자 입니다."),
+    TOKEN_NOT_ALLOWED(401, "TOKEN_NOT_ALLOWED", "허용 되지 않은 토큰 입니다."),
+    TOKEN_EXPIRED(409, "TOKEN_EXPIRED", "토큰이 만료 되었습니다."),
+    TOKEN_NUll(401, "TOKEN_NUll", "토큰이 존재하지 않습니다."),
+    NOT_ACCESS_TOKEN(401, "NOT_ACCESS_TOKEN", "It's not AccessToken"),
+    NOT_REFRESH_TOKEN(401, "NOT_REFRESH_TOKEN", "It's not RefreshToken"),
+    NOT_EXIST_AUTH_TEMP_TOKEN(401, "NOT_EXIST_AUTH_TEMP_TOKEN", "존재하지 않는 임시 코드 입니다."),
+    NOT_EXIST_REFRESH_TOKEN(401, "NOT_EXIST_REFRESH_TOKEN", "존재하지 않는 Refresh 토큰 입니다."),
+    TOKEN_PARSING(401, "TOKEN_PARSING", "Token Parsing Error"),
+    ACCESS_DENIED(403, "ACCESS_DENIED", "접근권한이 없습니다."),
+    OTHER_TOKEN_ERROR(401, "OTHER_TOKEN_ERROR", "알수 없는 토큰 에러가 발생 했습니다."),
 
     //************************************************ Server Error ************************************************//
     INTERNAL_SERVER(500, "INTERNAL_SERVER", "Internal Server Error"),                     // 서버 내부 에러

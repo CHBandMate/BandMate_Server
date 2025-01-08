@@ -28,9 +28,9 @@ public class ProfileMetadataController {
     }
 
     @Operation(summary = "지역 항목 조회")
-    @GetMapping("/region")
-    public ApiResponse<List<RegionResponseDTO>> getRegionData() {
-        return ApiResponse.success(profileMetadataService.getRegionData());
+    @GetMapping("/district")
+    public ApiResponse<List<RegionResponseDTO>> getDistrictData() {
+        return ApiResponse.success(profileMetadataService.getDistrictData());
     }
 
 }

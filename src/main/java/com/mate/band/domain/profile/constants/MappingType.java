@@ -6,9 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum MappingType {
-    BAND('B'),
-    USER('U'),
-    ;
-
-    char value;
+    BAND,
+    USER
 }

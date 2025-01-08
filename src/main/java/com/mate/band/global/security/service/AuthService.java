@@ -32,7 +32,7 @@ public class AuthService {
             redisService.deleteAuthTempCode(authTempCode);
             saveToken(response, tokenRequest.identifier());
         } else {
-            throw new BusinessException("존재하지 않는 인증코드");
+            throw new BusinessException(ErrorCode.NOT_EXIST_AUTH_TEMP_TOKEN);
         }
     }
 
@@ -49,20 +49,20 @@ public class AuthService {
         }
 
         if (!refreshToken.equals(refreshTokenInRedis)) {
-            throw new BusinessException(ErrorCode.NOT_MATCHED_REFRESH);
+            throw new BusinessException(ErrorCode.NOT_EXIST_REFRESH_TOKEN);
         }
 
         saveToken(response, userNo);
     }
 
     private void saveToken(HttpServletResponse response, long userNo) {
-        // TODO GlobalException 예외 설정 필요
-        UserEntity user = userRepository.findById(userNo).orElseThrow(() -> new BusinessException("존재하지 않는 회원"));
+        UserEntity user = userRepository.findById(userNo).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
         String accessToken = tokenMap.get(Auth.ACCESS_TYPE.getValue());
         String refreshToken = tokenMap.get(Auth.REFRESH_TYPE.getValue());
 
         // RefreshToken Redis 저장
+        // 에러 발생 해도 로그만 남기고 ATK는 발급 처리
         try {
             redisService.saveRefreshToken(user.getId(), refreshToken);
         } catch (RedisConnectionFailureException e) {

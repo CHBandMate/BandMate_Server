@@ -1,17 +1,15 @@
 package com.mate.band.global.exception;
 
+import lombok.Getter;
+
+@Getter
 public class BusinessException extends RuntimeException {
 
-    public BusinessException() {
-        super();
-    }
+    private final ErrorCode errorCode;
 
     public BusinessException(ErrorCode errorCode) {
         super(errorCode.getErrorMessage());
-    }
-
-    public BusinessException(String errorMessage) {
-        super(errorMessage);
+        this.errorCode = errorCode;
     }
 
 }

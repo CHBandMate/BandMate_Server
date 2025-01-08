@@ -33,7 +33,7 @@ public class ProfileMetadataService {
                 .build();
     }
 
-    public List<RegionResponseDTO> getRegionData() {
+    public List<RegionResponseDTO> getDistrictData() {
         List<RegionDataDTO> regions = regionRepository.getRegionsWithDistricts();
 
         Map<Integer, RegionResponseDTO> regionResponseMap = new HashMap<>();

@@ -7,4 +7,3 @@ public record ProfileMetaDataDTO(
         String key,
         String value
 ){}
-

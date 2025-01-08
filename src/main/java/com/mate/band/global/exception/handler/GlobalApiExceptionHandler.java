@@ -1,5 +1,6 @@
 package com.mate.band.global.exception.handler;
 
+import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.util.response.ApiResponse;
 import com.mate.band.global.util.response.ErrorData;
 import com.mate.band.global.exception.ErrorCode;
@@ -12,7 +13,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 
 import java.io.IOException;
 
-// TODO Exception 클래스 생성 및 정리 필요
 /**
  * [Global Exception]
  * Controller 내에서 발생하는 Exception 관리
@@ -34,10 +34,7 @@ public class GlobalApiExceptionHandler {
     @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ApiResponse<ErrorData> handleNoHandlerFoundExceptionException(NoHandlerFoundException exception) {
         log.error("NoHandlerFoundException", exception);
-        ErrorData response = ErrorData.builder()
-                .errorCode(ErrorCode.NOT_FOUND.getErrorCode())
-                .errorMessage(ErrorCode.NOT_FOUND.getErrorMessage())
-                .build();
+        ErrorData response = new ErrorData(ErrorCode.NOT_FOUND);
         return ApiResponse.fail(ErrorCode.NOT_FOUND.getStatusCode(), response);
     }
 
@@ -50,10 +47,7 @@ public class GlobalApiExceptionHandler {
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     protected ApiResponse<ErrorData> handleIOException(IOException exception) {
         log.error("IOException", exception);
-        ErrorData response = ErrorData.builder()
-                .errorCode(ErrorCode.INTERNAL_SERVER.getErrorCode())
-                .errorMessage(ErrorCode.INTERNAL_SERVER.getErrorMessage())
-                .build();
+        ErrorData response = new ErrorData(ErrorCode.INTERNAL_SERVER);
         return ApiResponse.fail(ErrorCode.INTERNAL_SERVER.getStatusCode(), response);
     }
 
@@ -63,14 +57,34 @@ public class GlobalApiExceptionHandler {
      * @return ApiResponse<ErrorData>
      */
     @ExceptionHandler(NullPointerException.class)
-    @ResponseStatus(HttpStatus.NOT_FOUND)
     protected ApiResponse<ErrorData> handleNullPointerException(NullPointerException exception) {
         log.error("NullPointerException", exception);
-        ErrorData response = ErrorData.builder()
-                .errorCode(ErrorCode.NULL_POINT.getErrorCode())
-                .errorMessage(ErrorCode.NULL_POINT.getErrorMessage())
-                .build();
+        ErrorData response = new ErrorData(ErrorCode.NULL_POINT);
         return ApiResponse.fail(ErrorCode.NULL_POINT.getStatusCode(), response);
+    }
+
+    /**
+     * [Exception] NULL 값이 발생한 경우
+     * @param exception NullPointerException
+     * @return ApiResponse<ErrorData>
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    protected ApiResponse<ErrorData> handleIllegalArgumentException(IllegalArgumentException exception) {
+        log.error("IllegalArgumentException", exception);
+        ErrorData response = new ErrorData(ErrorCode.ILLEGAL_ARGUMENT);
+        return ApiResponse.fail(ErrorCode.ILLEGAL_ARGUMENT.getStatusCode(), response);
+    }
+
+    /**
+     * [Exception] BusinessException이 발생한 경우
+     * @param exception BusinessException
+     * @return ApiResponse<ErrorData>
+     */
+    @ExceptionHandler(BusinessException.class)
+    protected ApiResponse<ErrorData> handleNullPointerException(BusinessException exception) {
+        log.error("BusinessException", exception);
+        ErrorData response = new ErrorData(exception.getErrorCode());
+        return ApiResponse.fail(exception.getErrorCode().getStatusCode(), response);
     }
 
     /**
@@ -81,10 +95,7 @@ public class GlobalApiExceptionHandler {
     @ExceptionHandler(Exception.class)
     protected final ApiResponse<ErrorData> handleAllExceptions(Exception exception) {
         log.error("Other Error", exception);
-        ErrorData response = ErrorData.builder()
-                .errorCode(ErrorCode.OTHER_ERROR.getErrorCode())
-                .errorMessage(ErrorCode.OTHER_ERROR.getErrorMessage())
-                .build();
+        ErrorData response = new ErrorData(ErrorCode.OTHER_ERROR);
         return ApiResponse.fail(ErrorCode.OTHER_ERROR.getStatusCode(), response);
     }
 

@@ -9,6 +9,4 @@ public record ProfileMetaDataResponseDTO(
         List<ProfileMetaDataDTO> musicGenre,
         List<ProfileMetaDataDTO> position,
         List<ProfileMetaDataDTO> snsPlatform
-) {
-
-}
+){}
