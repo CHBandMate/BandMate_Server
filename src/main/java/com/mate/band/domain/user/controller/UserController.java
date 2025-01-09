@@ -1,6 +1,6 @@
 package com.mate.band.domain.user.controller;
 
-import com.mate.band.domain.user.dto.RegisterProfileRequestDTO;
+import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.service.UserService;
 import com.mate.band.global.security.annotation.AuthUser;
@@ -22,8 +22,8 @@ public class UserController {
 
     @Operation(summary = "개인 프로필 등록")
     @PostMapping("/profile")
-    public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterProfileRequestDTO registerProfileRequest) {
-        userService.registerProfile(user, registerProfileRequest);
+    public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterUserProfileRequestDTO profileRequest) {
+        userService.registerUserProfile(user, profileRequest);
         return ApiResponse.success();
     }
 

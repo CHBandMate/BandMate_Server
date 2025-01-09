@@ -1,8 +1,11 @@
 package com.mate.band.domain.user.entity;
 
+import com.mate.band.domain.band.entity.BandEntity;
+import com.mate.band.domain.profile.entity.BandPositionInfoEntity;
 import com.mate.band.domain.profile.entity.DistrictMappingEntity;
+import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.profile.entity.PositionMappingEntity;
-import com.mate.band.domain.user.dto.RegisterProfileRequestDTO;
+import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
 import com.mate.band.global.security.constants.OAuthType;
 import com.mate.band.global.security.constants.Role;
 import jakarta.persistence.*;
@@ -91,7 +94,16 @@ public class UserEntity implements Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DistrictMappingEntity> regions = new ArrayList<>();
 
-    public void registryUser(RegisterProfileRequestDTO registerProfile) {
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<MusicGenreMappingEntity> musicGenres = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandEntity> bands = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandPositionInfoEntity> bandPosition = new ArrayList<>();
+
+    public void registryUser(RegisterUserProfileRequestDTO registerProfile) {
         this.role = Role.USER;
         this.nickname = registerProfile.nickName();
 //        this.profileImageUrl = registerProfile.profileImageUrl();

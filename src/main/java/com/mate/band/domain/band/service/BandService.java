@@ -1,5 +1,10 @@
-package com.mate.band.domain.user.service;
+package com.mate.band.domain.band.service;
 
+import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
+import com.mate.band.domain.band.entity.BandEntity;
+import com.mate.band.domain.band.entity.BandRecruitInfoEntity;
+import com.mate.band.domain.band.repository.BandRecruitInfoRepository;
+import com.mate.band.domain.band.repository.BandRepository;
 import com.mate.band.domain.profile.constants.MappingType;
 import com.mate.band.domain.profile.constants.MusicGenre;
 import com.mate.band.domain.profile.constants.Position;
@@ -8,12 +13,10 @@ import com.mate.band.domain.profile.entity.DistrictMappingEntity;
 import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.profile.entity.PositionMappingEntity;
 import com.mate.band.domain.profile.repository.*;
-import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
-import com.mate.band.global.security.constants.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,50 +25,72 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class BandService {
+
+    private final BandRepository bandRepository;
     private final UserRepository userRepository;
+    private final BandRecruitInfoRepository bandRecruitInfoRepository;
     private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
 
-    // TODO 리팩토링
     @Transactional
-    public void registerUserProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
+    public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        if (userEntity.getRole() != Role.NOT_REGISTERED) {
-            throw new BusinessException(ErrorCode.REGISTERED_USER);
-        }
 
-        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
         MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
         List<DistrictEntity> districts = verifyDistrict(profileParam.district());
-        userEntity.registryUser(profileParam);
 
-        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
-                PositionMappingEntity.builder()
-                        .type(MappingType.USER)
+        BandEntity bandEntity =
+                BandEntity.builder()
                         .user(userEntity)
-                        .position(Position.valueOf(position))
-                        .build()).toList();
+                        .bandName(profileParam.bandName())
+                        .introduction(profileParam.introduction())
+                        .exposeYn(profileParam.exposeYn())
+                        .recruitYn(profileParam.recruitYn())
+                        .build();
 
         List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
                 MusicGenreMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
                         .genre(MusicGenre.valueOf(genre))
                         .build()).toList();
 
         List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
                 DistrictMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
                         .district(district)
                         .build()).toList();
 
-        positionMappingRepository.saveAll(positionMappingEntityList);
+        bandRepository.save(bandEntity);
         musicGenreMappingRepository.saveAll(musicGenreMappingEntityList);
         districtMappingRepository.saveAll(districtMappingEntityList);
+        // 포지션별 멤버 저장 필요
+
+        // 구인정보 저장
+        if (profileParam.recruitYn()) {
+            // 구인 포지션
+            MetadataEnumRepository.verifyMetadataKey(profileParam.recruitPosition(), Position.class);
+            List<PositionMappingEntity> positionMappingEntityList = profileParam.recruitPosition().stream().map(position ->
+                    PositionMappingEntity.builder()
+                            .type(MappingType.BAND)
+                            .band(bandEntity)
+                            .position(Position.valueOf(position))
+                            .build()).toList();
+            positionMappingRepository.saveAll(positionMappingEntityList);
+
+            // 구인 내용
+            BandRecruitInfoEntity recruitInfoEntity =
+                    BandRecruitInfoEntity.builder()
+                            .band(bandEntity)
+                            .title(profileParam.recruitTitle())
+                            .description(profileParam.recruitDescription())
+                            .build();
+            bandRecruitInfoRepository.save(recruitInfoEntity);
+        }
     }
 
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {

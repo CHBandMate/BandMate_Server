@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
@@ -26,7 +27,7 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
-    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/region"};
+    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
     private final CustomOAuth2UserService customOAuthService;
@@ -52,7 +53,7 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS pre-flight 요청 허용
                         .requestMatchers(PERMITTED_URI).permitAll() // TODO 메인 기본 데이터 조회 추가
-                        .requestMatchers("/user/signup").hasRole("NOT_REGISTERED")
+                        .requestMatchers(HttpMethod.POST,"/user/profile").hasRole("NOT_REGISTERED")
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용
                 .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

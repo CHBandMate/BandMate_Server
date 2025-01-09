@@ -27,6 +27,7 @@ public class ProfileMetadataController {
         return ApiResponse.success(profileMetadataService.getProfileMetadata());
     }
 
+    // TODO 캐싱 필요
     @Operation(summary = "지역 항목 조회")
     @GetMapping("/district")
     public ApiResponse<List<RegionResponseDTO>> getDistrictData() {

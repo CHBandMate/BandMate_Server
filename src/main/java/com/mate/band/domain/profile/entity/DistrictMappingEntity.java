@@ -1,6 +1,7 @@
 package com.mate.band.domain.profile.entity;
 
 
+import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.profile.constants.MappingType;
 import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
@@ -22,6 +23,10 @@ public class DistrictMappingEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "type")
     private MappingType type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "band_id")
+    private BandEntity band;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

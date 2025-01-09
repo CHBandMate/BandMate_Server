@@ -6,7 +6,7 @@ import com.mate.band.global.config.RedisService;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.security.constants.Auth;
-import com.mate.band.global.security.dto.TokenRequest;
+import com.mate.band.global.security.dto.TokenRequestDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +25,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RedisService redisService;
 
-    public void issueToken(HttpServletResponse response, TokenRequest tokenRequest) {
+    public void issueToken(HttpServletResponse response, TokenRequestDTO tokenRequest) {
         String authTempCode = tokenRequest.authTempCode();
 
         if (redisService.validateAuthTempCode(authTempCode)) {

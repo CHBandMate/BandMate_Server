@@ -7,7 +7,7 @@ import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @Builder
-public record RegisterProfileRequestDTO(
+public record RegisterUserProfileRequestDTO(
 
         @NotNull
         @Schema(description = "닉네임", example = "베짱이")
