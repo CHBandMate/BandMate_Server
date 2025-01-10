@@ -36,6 +36,6 @@ public class PositionMappingEntity {
     private UserEntity user;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "recruitPosition")
+    @Column(name = "position")
     private Position position;
 }

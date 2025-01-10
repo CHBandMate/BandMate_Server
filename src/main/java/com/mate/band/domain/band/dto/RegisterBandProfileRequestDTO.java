@@ -32,7 +32,7 @@ public record RegisterBandProfileRequestDTO(
         @Schema(description = "멤버 구인 여부", example = "true")
         boolean recruitYn,
 
-        @Schema(description = "구인글 제목", example = "true")
+        @Schema(description = "구인글 제목", example = "베짱이와 쩌리들에서 멤버를 모집합니다~!")
         String recruitTitle,
 
         @Schema(description = "구인 포지션 선택 코드", example = "[\"KEYBOARD\", \"VOCAL\", \"BASS\"]")

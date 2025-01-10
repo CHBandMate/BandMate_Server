@@ -40,7 +40,7 @@ public class BandService {
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
 
-    @Transactional
+    @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
     public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
@@ -84,7 +84,7 @@ public class BandService {
                 } else {
                     member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
                 }
-                BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build();
+                bandMemberEntityList.add(BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build());
             }
             bandMemberEntityRepository.saveAll(bandMemberEntityList);
         }
