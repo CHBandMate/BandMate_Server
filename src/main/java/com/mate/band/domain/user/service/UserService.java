@@ -19,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +29,10 @@ public class UserService {
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
+
+    public Optional<UserEntity> findUserByNickname(String nickname) {
+        return userRepository.findByNickname(nickname);
+    }
 
     // TODO 리팩토링
     @Transactional

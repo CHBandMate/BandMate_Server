@@ -57,6 +57,9 @@ public class BandEntity {
     @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PositionMappingEntity> recruitingPositions = new ArrayList<>();
 
+    @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandMemberEntity> bandMembers = new ArrayList<>();
+
     @CreationTimestamp
     @Column(name = "created_at", columnDefinition = "DATETIME", updatable = false)
     private LocalDateTime createdAt;

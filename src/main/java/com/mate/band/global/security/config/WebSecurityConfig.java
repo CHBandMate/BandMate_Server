@@ -20,6 +20,7 @@ import org.springframework.security.config.annotation.web.configurers.HttpBasicC
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
@@ -29,6 +30,7 @@ public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
     public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
+    private static final String[] ALL_ROLES = {"USER", "ADMIN", "LEADER", "NOT_REGISTERED"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
     private final CustomOAuth2UserService customOAuthService;
     private final OAuth2SuccessHandler successHandler;
@@ -53,7 +55,11 @@ public class WebSecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS pre-flight 요청 허용
                         .requestMatchers(PERMITTED_URI).permitAll() // TODO 메인 기본 데이터 조회 추가
+
+                        // 회원 프로필 등록 관련
                         .requestMatchers(HttpMethod.POST,"/user/profile").hasRole("NOT_REGISTERED")
+                        .requestMatchers(new AntPathRequestMatcher("/user/profile/**")).hasAnyRole(ALL_ROLES)
+
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용
                 .addFilterBefore(new JWTAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class)

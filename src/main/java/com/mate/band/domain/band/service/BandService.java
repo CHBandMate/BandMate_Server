@@ -1,8 +1,11 @@
 package com.mate.band.domain.band.service;
 
+import com.mate.band.domain.band.dto.BandMemberDTO;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.band.entity.BandEntity;
+import com.mate.band.domain.band.entity.BandMemberEntity;
 import com.mate.band.domain.band.entity.BandRecruitInfoEntity;
+import com.mate.band.domain.band.repository.BandMemberEntityRepository;
 import com.mate.band.domain.band.repository.BandRecruitInfoRepository;
 import com.mate.band.domain.band.repository.BandRepository;
 import com.mate.band.domain.profile.constants.MappingType;
@@ -21,6 +24,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -29,6 +33,7 @@ public class BandService {
 
     private final BandRepository bandRepository;
     private final UserRepository userRepository;
+    private final BandMemberEntityRepository bandMemberEntityRepository;
     private final BandRecruitInfoRepository bandRecruitInfoRepository;
     private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
@@ -68,7 +73,21 @@ public class BandService {
         bandRepository.save(bandEntity);
         musicGenreMappingRepository.saveAll(musicGenreMappingEntityList);
         districtMappingRepository.saveAll(districtMappingEntityList);
-        // 포지션별 멤버 저장 필요
+
+        // 밴드 멤버 저장
+        if (!profileParam.bandMember().isEmpty()) {
+            List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
+            for (BandMemberDTO bandMember : profileParam.bandMember()) {
+                UserEntity member;
+                if (bandMember.userId() == userEntity.getId()) {    // 나 자신 일때
+                    member = userEntity;
+                } else {
+                    member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+                }
+                BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build();
+            }
+            bandMemberEntityRepository.saveAll(bandMemberEntityList);
+        }
 
         // 구인정보 저장
         if (profileParam.recruitYn()) {

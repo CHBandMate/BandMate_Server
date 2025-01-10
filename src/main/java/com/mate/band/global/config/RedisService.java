@@ -26,10 +26,10 @@ public class RedisService {
         this.redisTemplate = redisTemplate;
     }
 
-    public String saveAuthTempCode(long userNo) {
+    public String saveAuthTempCode(long userId) {
         String authTempCode = UUID.randomUUID().toString();
         String key = RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode);
-        redisTemplate.opsForValue().set(key, String.valueOf(userNo), AUTH_TEMP_CODE_EXPIRED_TIME, TimeUnit.SECONDS);
+        redisTemplate.opsForValue().set(key, String.valueOf(userId), AUTH_TEMP_CODE_EXPIRED_TIME, TimeUnit.SECONDS);
         return authTempCode;
     }
 
@@ -41,7 +41,7 @@ public class RedisService {
         redisTemplate.delete(RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode));
     }
 
-    public void saveRefreshToken(long userNo, String refreshToken) {
+    public void saveRefreshToken(long userId, String refreshToken) {
         TimeUnit expiredType;
         switch (EXPIRED_TYPE) {
             case "SECOND" -> expiredType = TimeUnit.SECONDS;
@@ -50,17 +50,17 @@ public class RedisService {
             default -> expiredType = TimeUnit.MINUTES;
         }
 
-        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userNo));
+        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userId));
         redisTemplate.opsForValue().set(key, refreshToken, REFRESH_EXPIRED_TIME, expiredType);
     }
 
-    public String getRefreshToken(long userNo) {
-        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userNo));
+    public String getRefreshToken(long userId) {
+        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userId));
         return (String) redisTemplate.opsForValue().get(key);
     }
 
-    public void deleteRefreshToken(long userNo) {
-        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userNo));
+    public void deleteRefreshToken(long userId) {
+        String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userId));
         redisTemplate.delete(key);
     }
 

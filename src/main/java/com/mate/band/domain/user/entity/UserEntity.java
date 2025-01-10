@@ -1,7 +1,7 @@
 package com.mate.band.domain.user.entity;
 
 import com.mate.band.domain.band.entity.BandEntity;
-import com.mate.band.domain.profile.entity.BandPositionInfoEntity;
+import com.mate.band.domain.band.entity.BandMemberEntity;
 import com.mate.band.domain.profile.entity.DistrictMappingEntity;
 import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.profile.entity.PositionMappingEntity;
@@ -89,19 +89,19 @@ public class UserEntity implements Serializable {
     private Boolean deleteYn;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PositionMappingEntity> positions = new ArrayList<>();
+    private List<PositionMappingEntity> myPositions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DistrictMappingEntity> regions = new ArrayList<>();
+    private List<DistrictMappingEntity> myRegions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MusicGenreMappingEntity> musicGenres = new ArrayList<>();
+    private List<MusicGenreMappingEntity> myMusicGenres = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BandEntity> bands = new ArrayList<>();
+    private List<BandEntity> myBands = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BandPositionInfoEntity> bandPosition = new ArrayList<>();
+    private List<BandMemberEntity> myPositionInBands = new ArrayList<>();
 
     public void registryUser(RegisterUserProfileRequestDTO registerProfile) {
         this.role = Role.USER;

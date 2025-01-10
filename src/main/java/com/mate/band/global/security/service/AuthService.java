@@ -41,8 +41,8 @@ public class AuthService {
             throw new BusinessException(ErrorCode.TOKEN_NOT_ALLOWED);
         }
 
-        long userNo = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
-        String refreshTokenInRedis = redisService.getRefreshToken(userNo);
+        long userId = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
+        String refreshTokenInRedis = redisService.getRefreshToken(userId);
 
         if (refreshTokenInRedis.isEmpty()) {
             throw new BusinessException(ErrorCode.TOKEN_NUll);
@@ -52,11 +52,11 @@ public class AuthService {
             throw new BusinessException(ErrorCode.NOT_EXIST_REFRESH_TOKEN);
         }
 
-        saveToken(response, userNo);
+        saveToken(response, userId);
     }
 
-    private void saveToken(HttpServletResponse response, long userNo) {
-        UserEntity user = userRepository.findById(userNo).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+    private void saveToken(HttpServletResponse response, long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
         String accessToken = tokenMap.get(Auth.ACCESS_TYPE.getValue());
         String refreshToken = tokenMap.get(Auth.REFRESH_TYPE.getValue());

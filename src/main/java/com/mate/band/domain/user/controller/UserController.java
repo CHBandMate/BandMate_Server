@@ -1,5 +1,7 @@
 package com.mate.band.domain.user.controller;
 
+import com.mate.band.domain.user.dto.CheckNicknameResponseDTO;
+import com.mate.band.domain.user.dto.FindUserResponseDTO;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.service.UserService;
@@ -8,10 +10,9 @@ import com.mate.band.global.util.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Optional;
 
 @Tag(name = "UserController", description = "회원 관련 API")
 @RestController
@@ -25,6 +26,25 @@ public class UserController {
     public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterUserProfileRequestDTO profileRequest) {
         userService.registerUserProfile(user, profileRequest);
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "닉네임 중복 확인")
+    @GetMapping("/profile/{nickname}")
+    public ApiResponse<?> checkNickname(@PathVariable String nickname) {
+        Optional<UserEntity> user = userService.findUserByNickname(nickname);
+        return ApiResponse.success(CheckNicknameResponseDTO.builder().duplicated(user.isPresent()).build());
+    }
+
+    @Operation(summary = "닉네임으로 회원 검색", description = "회원이 존재하지 않을 경우 \"data\" : null")
+    @GetMapping("/{nickname}")
+    public ApiResponse<?> findUserByNickname(@PathVariable String nickname) {
+        Optional<UserEntity> user = userService.findUserByNickname(nickname);
+        if (user.isEmpty()) {
+            return ApiResponse.success();
+        } else {
+            UserEntity userEntity = user.get();
+            return ApiResponse.success(FindUserResponseDTO.builder().userId(userEntity.getId()).nickname(userEntity.getNickname()).build());
+        }
     }
 
 }

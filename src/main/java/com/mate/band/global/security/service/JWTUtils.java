@@ -170,11 +170,11 @@ public class JWTUtils {
      */
     public static Authentication getAuthentication(String token) {
         Claims claims = getClaimsFromToken(token);
-        Long userNo = Long.valueOf(claims.getSubject());
+        Long userId = Long.valueOf(claims.getSubject());
         String oauthId = claims.get(Claim.OAUTH_ID.getKey(), String.class);
         String oauthType = claims.get(Claim.OAUTH_TYPE.getKey(), String.class);
         String role = claims.get(Claim.ROLE.getKey(), String.class);
-        UserEntity user = UserEntity.builder().id(userNo).oauthId(oauthId).oauthType(OAuthType.valueOf(oauthType)).role(Role.valueOf(role)).build();
+        UserEntity user = UserEntity.builder().id(userId).oauthId(oauthId).oauthType(OAuthType.valueOf(oauthType)).role(Role.valueOf(role)).build();
         UserPrincipal userPrincipal = new UserPrincipal(user);
         return new UsernamePasswordAuthenticationToken(userPrincipal, "", userPrincipal.getAuthorities());
     }
