@@ -1,6 +1,6 @@
 package com.mate.band.domain.band.entity;
 
-import com.mate.band.domain.profile.constants.Position;
+import com.mate.band.domain.metadata.constants.Position;
 import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;

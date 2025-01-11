@@ -1,4 +1,4 @@
-package com.mate.band.domain.profile.constants;
+package com.mate.band.domain.metadata.constants;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,22 +1,23 @@
-package com.mate.band.domain.profile.entity;
+package com.mate.band.domain.metadata.entity;
+
 
 import com.mate.band.domain.band.entity.BandEntity;
-import com.mate.band.domain.profile.constants.MappingType;
-import com.mate.band.domain.profile.constants.MusicGenre;
+import com.mate.band.domain.metadata.constants.MappingType;
 import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "music_genre_mapping")
+@Table(name = "district_mapping")
 @Entity
 @Builder
 @AllArgsConstructor
-public class MusicGenreMappingEntity {
+public class DistrictMappingEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "music_genre_mapping_id")
+    @Column(name = "district_mapping_id")
     private Long id;
 
     @Enumerated(EnumType.STRING)
@@ -31,7 +32,7 @@ public class MusicGenreMappingEntity {
     @JoinColumn(name = "user_id")
     private UserEntity user;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "genre")
-    private MusicGenre genre;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "district_id")
+    private DistrictEntity district;
 }

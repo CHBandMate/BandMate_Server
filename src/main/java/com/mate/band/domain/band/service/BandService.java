@@ -1,6 +1,7 @@
 package com.mate.band.domain.band.service;
 
 import com.mate.band.domain.band.dto.BandMemberDTO;
+import com.mate.band.domain.band.dto.BandRecruitInfo;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
@@ -8,14 +9,14 @@ import com.mate.band.domain.band.entity.BandRecruitInfoEntity;
 import com.mate.band.domain.band.repository.BandMemberEntityRepository;
 import com.mate.band.domain.band.repository.BandRecruitInfoRepository;
 import com.mate.band.domain.band.repository.BandRepository;
-import com.mate.band.domain.profile.constants.MappingType;
-import com.mate.band.domain.profile.constants.MusicGenre;
-import com.mate.band.domain.profile.constants.Position;
-import com.mate.band.domain.profile.entity.DistrictEntity;
-import com.mate.band.domain.profile.entity.DistrictMappingEntity;
-import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
-import com.mate.band.domain.profile.entity.PositionMappingEntity;
-import com.mate.band.domain.profile.repository.*;
+import com.mate.band.domain.metadata.constants.MappingType;
+import com.mate.band.domain.metadata.constants.MusicGenre;
+import com.mate.band.domain.metadata.constants.Position;
+import com.mate.band.domain.metadata.entity.DistrictEntity;
+import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
+import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
+import com.mate.band.domain.metadata.entity.PositionMappingEntity;
+import com.mate.band.domain.metadata.repository.*;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
@@ -39,6 +40,25 @@ public class BandService {
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
+
+    public Boolean checkBandName(String bandName) {
+        return bandRepository.findByBandName(bandName).isPresent();
+    }
+
+    public List<BandRecruitInfo> getBandRecruitInfoList() {
+        List<BandRecruitInfo> bandRecruitInfoList = new ArrayList<>();
+        for (BandRecruitInfoEntity recruitInfo : bandRecruitInfoRepository.findAllRecruitInfo()) {
+            BandEntity band = recruitInfo.getBand();
+            bandRecruitInfoList.add(
+                    BandRecruitInfo.builder()
+                            .bandId(band.getId())
+                            .bandName(band.getBandName())
+                            .recruitTitle(recruitInfo.getTitle())
+                            .build()
+            );
+        }
+        return bandRecruitInfoList;
+    }
 
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
     public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
@@ -82,7 +102,7 @@ public class BandService {
                 if (bandMember.userId() == userEntity.getId()) {    // 나 자신 일때
                     member = userEntity;
                 } else {
-                    member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+                    member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
                 }
                 bandMemberEntityList.add(BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build());
             }

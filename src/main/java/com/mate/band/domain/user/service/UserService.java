@@ -1,13 +1,13 @@
 package com.mate.band.domain.user.service;
 
-import com.mate.band.domain.profile.constants.MappingType;
-import com.mate.band.domain.profile.constants.MusicGenre;
-import com.mate.band.domain.profile.constants.Position;
-import com.mate.band.domain.profile.entity.DistrictEntity;
-import com.mate.band.domain.profile.entity.DistrictMappingEntity;
-import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
-import com.mate.band.domain.profile.entity.PositionMappingEntity;
-import com.mate.band.domain.profile.repository.*;
+import com.mate.band.domain.metadata.constants.MappingType;
+import com.mate.band.domain.metadata.constants.MusicGenre;
+import com.mate.band.domain.metadata.constants.Position;
+import com.mate.band.domain.metadata.entity.DistrictEntity;
+import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
+import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
+import com.mate.band.domain.metadata.entity.PositionMappingEntity;
+import com.mate.band.domain.metadata.repository.*;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;

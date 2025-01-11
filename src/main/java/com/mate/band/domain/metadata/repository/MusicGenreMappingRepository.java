@@ -1,6 +1,6 @@
-package com.mate.band.domain.profile.repository;
+package com.mate.band.domain.metadata.repository;
 
-import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
+import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

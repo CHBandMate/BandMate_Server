@@ -1,4 +1,4 @@
-package com.mate.band.domain.profile.constants;
+package com.mate.band.domain.metadata.constants;
 
 import com.mate.band.domain.common.EnumModel;
 import lombok.AllArgsConstructor;

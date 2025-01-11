@@ -1,8 +1,8 @@
-package com.mate.band.domain.profile.controller;
+package com.mate.band.domain.metadata.controller;
 
-import com.mate.band.domain.profile.dto.RegionResponseDTO;
-import com.mate.band.domain.profile.dto.ProfileMetaDataResponseDTO;
-import com.mate.band.domain.profile.service.ProfileMetadataService;
+import com.mate.band.domain.metadata.dto.RegionResponseDTO;
+import com.mate.band.domain.metadata.dto.ProfileMetaDataResponseDTO;
+import com.mate.band.domain.metadata.service.ProfileMetadataService;
 import com.mate.band.global.util.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,11 +1,11 @@
-package com.mate.band.domain.profile.service;
+package com.mate.band.domain.metadata.service;
 
 import com.mate.band.domain.common.EnumModel;
-import com.mate.band.domain.profile.constants.MusicGenre;
-import com.mate.band.domain.profile.constants.Position;
-import com.mate.band.domain.profile.constants.SnsPlatform;
-import com.mate.band.domain.profile.dto.*;
-import com.mate.band.domain.profile.repository.RegionRepository;
+import com.mate.band.domain.metadata.constants.MusicGenre;
+import com.mate.band.domain.metadata.constants.Position;
+import com.mate.band.domain.metadata.constants.SnsPlatform;
+import com.mate.band.domain.metadata.dto.*;
+import com.mate.band.domain.metadata.repository.RegionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

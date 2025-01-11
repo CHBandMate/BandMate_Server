@@ -1,4 +1,4 @@
-package com.mate.band.domain.profile.dto;
+package com.mate.band.domain.metadata.dto;
 
 public record RegionDataDTO(
         long regionId,

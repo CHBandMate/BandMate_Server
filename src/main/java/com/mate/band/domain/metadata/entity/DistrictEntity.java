@@ -1,4 +1,4 @@
-package com.mate.band.domain.profile.entity;
+package com.mate.band.domain.metadata.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

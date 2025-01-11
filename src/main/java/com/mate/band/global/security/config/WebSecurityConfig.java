@@ -20,7 +20,6 @@ import org.springframework.security.config.annotation.web.configurers.HttpBasicC
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsUtils;
 
 @Configuration
@@ -58,7 +57,7 @@ public class WebSecurityConfig {
 
                         // 회원 프로필 등록 관련
                         .requestMatchers(HttpMethod.POST,"/user/profile").hasRole("NOT_REGISTERED")
-                        .requestMatchers(new AntPathRequestMatcher("/user/profile/**")).hasAnyRole(ALL_ROLES)
+                        .requestMatchers("/profile/check-nickname").hasAnyRole(ALL_ROLES)
 
                         .anyRequest().hasAnyRole(PERMITTED_ROLES))
                 .sessionManagement(configurer -> configurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // JWT 사용으로 인한 세션 미사용

@@ -1,16 +1,15 @@
-package com.mate.band.domain.profile.constants;
+package com.mate.band.domain.metadata.constants;
 
 import com.mate.band.domain.common.EnumModel;
 import lombok.AllArgsConstructor;
+import lombok.Getter;
 
 @AllArgsConstructor
-public enum Position implements EnumModel {
-    GUITAR("GUITAR", "기타"),
-    BASS("BASS", "베이스"),
-    DRUM("DRUM", "드럼"),
-    KEYBOARD("KEYBOARD", "건반"),
-    VOCAL("VOCAL", "보컬"),
-    ETC("ETC", "그 외"),
+@Getter
+public enum SnsPlatform implements EnumModel {
+    YOUTUBE("YOUTUBE", "유튜브"),
+    INSTAGRAM("INSTAGRAM", "인스타그램"),
+    SOUND_CLOUD("SOUND_CLOUD", "사운드클라우드")
     ;
 
     String key, value;

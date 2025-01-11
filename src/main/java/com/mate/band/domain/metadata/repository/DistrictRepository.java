@@ -1,6 +1,6 @@
-package com.mate.band.domain.profile.repository;
+package com.mate.band.domain.metadata.repository;
 
-import com.mate.band.domain.profile.entity.DistrictEntity;
+import com.mate.band.domain.metadata.entity.DistrictEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

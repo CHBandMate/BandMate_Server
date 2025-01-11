@@ -2,15 +2,15 @@ package com.mate.band.domain.user.entity;
 
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
-import com.mate.band.domain.profile.entity.DistrictMappingEntity;
-import com.mate.band.domain.profile.entity.MusicGenreMappingEntity;
-import com.mate.band.domain.profile.entity.PositionMappingEntity;
+import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
+import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
+import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
+import com.mate.band.global.entity.BaseTimeEntity;
 import com.mate.band.global.security.constants.OAuthType;
 import com.mate.band.global.security.constants.Role;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -29,7 +29,7 @@ import java.util.List;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
 @AllArgsConstructor
-public class UserEntity implements Serializable {
+public class UserEntity extends BaseTimeEntity implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,20 +73,13 @@ public class UserEntity implements Serializable {
     private String introduction;
 
     @Column(name = "expose_yn", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean exposeYn;
-
-    @CreationTimestamp
-    @Column(name = "created_at", columnDefinition = "DATETIME", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at", columnDefinition = "DATETIME", insertable = false)
-    private LocalDateTime modifiedAt;
+    private Boolean exposeYn = false;
 
     @Column(name = "last_login_dt", columnDefinition = "DATETIME", insertable = false)
     private LocalDateTime lastLoginDt;
 
     @Column(name = "delete_yn", columnDefinition = "TINYINT(1) DEFAULT 0")
-    private Boolean deleteYn;
+    private Boolean deleteYn = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PositionMappingEntity> myPositions = new ArrayList<>();

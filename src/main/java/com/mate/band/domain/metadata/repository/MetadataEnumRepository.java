@@ -1,4 +1,4 @@
-package com.mate.band.domain.profile.repository;
+package com.mate.band.domain.metadata.repository;
 
 import com.mate.band.domain.common.EnumModel;
 import com.mate.band.global.exception.BusinessException;
