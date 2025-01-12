@@ -7,7 +7,7 @@ import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 /*
-* Band -> 구인 포지션
+* Band -> 모집 포지션
 * User -> 본인 소개 포지션
 * */
 @Getter
@@ -38,4 +38,5 @@ public class PositionMappingEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "position")
     private Position position;
+
 }

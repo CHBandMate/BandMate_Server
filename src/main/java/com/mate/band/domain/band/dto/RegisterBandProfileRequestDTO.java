@@ -29,15 +29,15 @@ public record RegisterBandProfileRequestDTO(
         @Schema(description = "밴드 프로필 노출 여부", example = "true")
         boolean exposeYn,
 
-        @Schema(description = "멤버 구인 여부", example = "true")
+        @Schema(description = "멤버 모집 여부", example = "true")
         boolean recruitYn,
 
-        @Schema(description = "구인글 제목", example = "베짱이와 쩌리들에서 멤버를 모집합니다~!")
+        @Schema(description = "모집글 제목", example = "베짱이와 쩌리들에서 멤버를 모집합니다~!")
         String recruitTitle,
 
-        @Schema(description = "구인 포지션 선택 코드", example = "[\"KEYBOARD\", \"VOCAL\", \"BASS\"]")
+        @Schema(description = "모집 포지션 선택 코드", example = "[\"KEYBOARD\", \"VOCAL\", \"BASS\"]")
         List<String> recruitPosition,
 
-        @Schema(description = "구인글 내용", example = "놀기만 하고 기타치는 개미와 먹고 노래만 부르는 개똥벌레 모집합니다.")
+        @Schema(description = "모집글 내용", example = "놀기만 하고 기타치는 개미와 먹고 노래만 부르는 개똥벌레 모집합니다.")
         String recruitDescription
         ) {}

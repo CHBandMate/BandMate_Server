@@ -1,6 +1,6 @@
 package com.mate.band.domain.band.controller;
 
-import com.mate.band.domain.band.dto.BandRecruitInfo;
+import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.band.service.BandService;
 import com.mate.band.domain.user.entity.UserEntity;
@@ -9,9 +9,11 @@ import com.mate.band.global.util.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @Tag(name = "BandController", description = "밴드 관련 API")
 @RestController
@@ -34,11 +36,12 @@ public class BandController {
         return ApiResponse.success(bandService.checkBandName(bandName));
     }
 
-    // TODO 멤버 모집 API 완성, FetchType 어떻게 작동 되는지 확인
+    // TODO 페이징 처리, FetchType 어떻게 작동 되는지 확인
     @Operation(summary = "메인 화면 멤버 모집 게시글 조회")
     @GetMapping("/main/recruit")
-    public ApiResponse<List<BandRecruitInfo>> getBandRecruitInfoList() {
-        return ApiResponse.success(bandService.getBandRecruitInfoList());
+    public ApiResponse<Page<BandRecruitInfoResponseDTO>> getBandRecruitInfoList(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "bandRecruitInfoEntity.createdAt"));
+        return ApiResponse.success(bandService.getBandRecruitInfoList(pageable));
     }
 
 }

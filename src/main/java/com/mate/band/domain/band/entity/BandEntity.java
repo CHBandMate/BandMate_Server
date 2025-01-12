@@ -62,4 +62,5 @@ public class BandEntity extends BaseTimeEntity {
     @OneToOne(mappedBy = "band")
     private BandRecruitInfoEntity bandRecruitInfoEntity;
 
+
 }

@@ -1,7 +1,7 @@
 package com.mate.band.domain.band.service;
 
 import com.mate.band.domain.band.dto.BandMemberDTO;
-import com.mate.band.domain.band.dto.BandRecruitInfo;
+import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
@@ -12,6 +12,8 @@ import com.mate.band.domain.band.repository.BandRepository;
 import com.mate.band.domain.metadata.constants.MappingType;
 import com.mate.band.domain.metadata.constants.MusicGenre;
 import com.mate.band.domain.metadata.constants.Position;
+import com.mate.band.domain.metadata.dto.DistrictDataDTO;
+import com.mate.band.domain.metadata.dto.ProfileMetaDataDTO;
 import com.mate.band.domain.metadata.entity.DistrictEntity;
 import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
@@ -23,6 +25,8 @@ import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -45,19 +49,76 @@ public class BandService {
         return bandRepository.findByBandName(bandName).isPresent();
     }
 
-    public List<BandRecruitInfo> getBandRecruitInfoList() {
-        List<BandRecruitInfo> bandRecruitInfoList = new ArrayList<>();
-        for (BandRecruitInfoEntity recruitInfo : bandRecruitInfoRepository.findAllRecruitInfo()) {
-            BandEntity band = recruitInfo.getBand();
-            bandRecruitInfoList.add(
-                    BandRecruitInfo.builder()
-                            .bandId(band.getId())
-                            .bandName(band.getBandName())
-                            .recruitTitle(recruitInfo.getTitle())
-                            .build()
-            );
-        }
-        return bandRecruitInfoList;
+    @Transactional
+    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(Pageable pageable) {
+        Page<BandEntity> recruitingBandList = bandRepository.findRecruitingBandList(pageable);
+        Page<BandRecruitInfoResponseDTO> bandRecruitInfoPage = recruitingBandList.map(recruitingBand -> {
+            // 음악 장르 데이터
+            List<ProfileMetaDataDTO> musicGenres =
+                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
+                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
+                            .toList();
+
+            // 모집 포지션 데이터
+            List<ProfileMetaDataDTO> positions =
+                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
+                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
+                            .toList();
+
+            // 합주 지역 데이터
+            List<DistrictDataDTO> districts =
+                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
+                            DistrictDataDTO.builder()
+                                    .districtId(districtMappingEntity.getDistrict().getId())
+                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
+                                    .build()
+                    ).toList();
+
+            return BandRecruitInfoResponseDTO.builder()
+                    .bandId(recruitingBand.getId())
+                    .bandName(recruitingBand.getBandName())
+                    .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
+                    .genres(musicGenres)
+                    .positions(positions)
+                    .districts(districts)
+                    .build();
+        });
+        return bandRecruitInfoPage;
+
+//        for (BandEntity recruitingBand : recruitingBandList) {
+//
+            // 음악 장르 데이터
+//            List<ProfileMetaDataDTO> musicGenres =
+//                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
+//                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
+//                            .toList();
+//
+//            // 모집 포지션 데이터
+//            List<ProfileMetaDataDTO> positions =
+//                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
+//                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
+//                            .toList();
+//
+//            // 합주 지역 데이터
+//            List<DistrictDataDTO> districts =
+//                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
+//                            DistrictDataDTO.builder()
+//                                    .districtId(districtMappingEntity.getDistrict().getId())
+//                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
+//                                    .build()
+//                    ).toList();
+//
+//            bandRecruitInfoList.add(
+//                    BandRecruitInfoResponseDTO.builder()
+//                            .bandId(recruitingBand.getId())
+//                            .bandName(recruitingBand.getBandName())
+//                            .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
+//                            .genres(musicGenres)
+//                            .positions(positions)
+//                            .districts(districts)
+//                            .build()
+//            );
+//        }
     }
 
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
@@ -109,9 +170,9 @@ public class BandService {
             bandMemberEntityRepository.saveAll(bandMemberEntityList);
         }
 
-        // 구인정보 저장
+        // 모집 정보 저장
         if (profileParam.recruitYn()) {
-            // 구인 포지션
+            // 모집 포지션
             MetadataEnumRepository.verifyMetadataKey(profileParam.recruitPosition(), Position.class);
             List<PositionMappingEntity> positionMappingEntityList = profileParam.recruitPosition().stream().map(position ->
                     PositionMappingEntity.builder()
@@ -121,7 +182,7 @@ public class BandService {
                             .build()).toList();
             positionMappingRepository.saveAll(positionMappingEntityList);
 
-            // 구인 내용
+            // 모집 내용
             BandRecruitInfoEntity recruitInfoEntity =
                     BandRecruitInfoEntity.builder()
                             .band(bandEntity)
