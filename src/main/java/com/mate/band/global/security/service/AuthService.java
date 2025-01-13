@@ -6,7 +6,7 @@ import com.mate.band.global.config.RedisService;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
 import com.mate.band.global.security.constants.Auth;
-import com.mate.band.global.security.dto.TokenRequest;
+import com.mate.band.global.security.dto.TokenRequestDTO;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +25,14 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RedisService redisService;
 
-    public void issueToken(HttpServletResponse response, TokenRequest tokenRequest) {
+    public void issueToken(HttpServletResponse response, TokenRequestDTO tokenRequest) {
         String authTempCode = tokenRequest.authTempCode();
 
         if (redisService.validateAuthTempCode(authTempCode)) {
             redisService.deleteAuthTempCode(authTempCode);
             saveToken(response, tokenRequest.identifier());
         } else {
-            throw new BusinessException("존재하지 않는 인증코드");
+            throw new BusinessException(ErrorCode.NOT_EXIST_AUTH_TEMP_TOKEN);
         }
     }
 
@@ -41,28 +41,28 @@ public class AuthService {
             throw new BusinessException(ErrorCode.TOKEN_NOT_ALLOWED);
         }
 
-        long userNo = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
-        String refreshTokenInRedis = redisService.getRefreshToken(userNo);
+        long userId = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
+        String refreshTokenInRedis = redisService.getRefreshToken(userId);
 
         if (refreshTokenInRedis.isEmpty()) {
             throw new BusinessException(ErrorCode.TOKEN_NUll);
         }
 
         if (!refreshToken.equals(refreshTokenInRedis)) {
-            throw new BusinessException(ErrorCode.NOT_MATCHED_REFRESH);
+            throw new BusinessException(ErrorCode.NOT_EXIST_REFRESH_TOKEN);
         }
 
-        saveToken(response, userNo);
+        saveToken(response, userId);
     }
 
-    private void saveToken(HttpServletResponse response, long userNo) {
-        // TODO GlobalException 예외 설정 필요
-        UserEntity user = userRepository.findById(userNo).orElseThrow(() -> new BusinessException("존재하지 않는 회원"));
+    private void saveToken(HttpServletResponse response, long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
         String accessToken = tokenMap.get(Auth.ACCESS_TYPE.getValue());
         String refreshToken = tokenMap.get(Auth.REFRESH_TYPE.getValue());
 
         // RefreshToken Redis 저장
+        // 에러 발생 해도 로그만 남기고 ATK는 발급 처리
         try {
             redisService.saveRefreshToken(user.getId(), refreshToken);
         } catch (RedisConnectionFailureException e) {

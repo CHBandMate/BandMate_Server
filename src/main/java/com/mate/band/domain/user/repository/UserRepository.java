@@ -16,8 +16,13 @@ import java.util.Optional;
  */
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
+
+    @Query("select u from UserEntity u where u.id = :userId and u.deleteYn = false")
+    Optional<UserEntity> findById(long userId);
+
     Optional<UserEntity> findByOauthId(String oauthId);
 
+    @Query("select u from UserEntity u where u.nickname = :nickname and u.deleteYn = false")
     Optional<UserEntity> findByNickname(String nickname);
 
     @Query("select u from UserEntity u where u.oauthId = :oauthId and u.oauthType = :oauthType")
