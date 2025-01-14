@@ -3,6 +3,9 @@ package com.mate.band.domain.metadata.constants;
 import com.mate.band.domain.common.EnumModel;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 public enum MusicGenre implements EnumModel {
     POP("POP", "팝"),
@@ -34,5 +37,12 @@ public enum MusicGenre implements EnumModel {
         return this.value;
     }
 
+    public static List<MusicGenre> values(List<String> param) {
+        List<MusicGenre> result = new ArrayList<>();
+        for (String s : param) {
+            result.add(MusicGenre.valueOf(s));
+        }
+        return result;
+    }
 
 }

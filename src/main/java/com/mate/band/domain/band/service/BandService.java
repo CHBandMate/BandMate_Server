@@ -30,6 +30,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -50,23 +51,27 @@ public class BandService {
     }
 
     @Transactional
-    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(Pageable pageable) {
-        Page<BandEntity> recruitingBandList = bandRepository.findRecruitingBandList(pageable);
-        Page<BandRecruitInfoResponseDTO> bandRecruitInfoPage = recruitingBandList.map(recruitingBand -> {
+    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, Pageable pageable) {
+        List<Long> dis = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
+        List<String> gen = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
+        List<String> pos = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
+
+        Page<BandEntity> recruitingBandList = bandRepository.findRecruitingBandList(dis, gen, pos, pageable);
+        return recruitingBandList.map(recruitingBand -> {
             // 음악 장르 데이터
-            List<ProfileMetaDataDTO> musicGenres =
+            List<ProfileMetaDataDTO> musicGenreList =
                     recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
                             .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
                             .toList();
 
             // 모집 포지션 데이터
-            List<ProfileMetaDataDTO> positions =
+            List<ProfileMetaDataDTO> positionList =
                     recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
                             .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
                             .toList();
 
             // 합주 지역 데이터
-            List<DistrictDataDTO> districts =
+            List<DistrictDataDTO> districtList =
                     recruitingBand.getDistricts().stream().map(districtMappingEntity ->
                             DistrictDataDTO.builder()
                                     .districtId(districtMappingEntity.getDistrict().getId())
@@ -78,47 +83,11 @@ public class BandService {
                     .bandId(recruitingBand.getId())
                     .bandName(recruitingBand.getBandName())
                     .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
-                    .genres(musicGenres)
-                    .positions(positions)
-                    .districts(districts)
+                    .genres(musicGenreList)
+                    .positions(positionList)
+                    .districts(districtList)
                     .build();
         });
-        return bandRecruitInfoPage;
-
-//        for (BandEntity recruitingBand : recruitingBandList) {
-//
-            // 음악 장르 데이터
-//            List<ProfileMetaDataDTO> musicGenres =
-//                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
-//                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
-//                            .toList();
-//
-//            // 모집 포지션 데이터
-//            List<ProfileMetaDataDTO> positions =
-//                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
-//                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
-//                            .toList();
-//
-//            // 합주 지역 데이터
-//            List<DistrictDataDTO> districts =
-//                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
-//                            DistrictDataDTO.builder()
-//                                    .districtId(districtMappingEntity.getDistrict().getId())
-//                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
-//                                    .build()
-//                    ).toList();
-//
-//            bandRecruitInfoList.add(
-//                    BandRecruitInfoResponseDTO.builder()
-//                            .bandId(recruitingBand.getId())
-//                            .bandName(recruitingBand.getBandName())
-//                            .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
-//                            .genres(musicGenres)
-//                            .positions(positions)
-//                            .districts(districts)
-//                            .build()
-//            );
-//        }
     }
 
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
