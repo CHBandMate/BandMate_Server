@@ -50,13 +50,14 @@ public class BandService {
         return bandRepository.findByBandName(bandName).isPresent();
     }
 
+    // TODO 리팩토링, 즐겨찾기 여부 추가
     @Transactional
     public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, Pageable pageable) {
-        List<Long> dis = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
-        List<String> gen = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
-        List<String> pos = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
+        List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
+        List<String> genreParam = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
+        List<String> positionParam = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
 
-        Page<BandEntity> recruitingBandList = bandRepository.findRecruitingBandList(dis, gen, pos, pageable);
+        Page<BandEntity> recruitingBandList = bandRepository.findBandList(districtParam, genreParam, positionParam, true, pageable);
         return recruitingBandList.map(recruitingBand -> {
             // 음악 장르 데이터
             List<ProfileMetaDataDTO> musicGenreList =
@@ -83,6 +84,7 @@ public class BandService {
                     .bandId(recruitingBand.getId())
                     .bandName(recruitingBand.getBandName())
                     .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
+                    .description(recruitingBand.getBandRecruitInfoEntity().getDescription())
                     .genres(musicGenreList)
                     .positions(positionList)
                     .districts(districtList)

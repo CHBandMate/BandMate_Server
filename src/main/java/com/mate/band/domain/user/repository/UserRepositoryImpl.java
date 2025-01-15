@@ -1,11 +1,10 @@
-package com.mate.band.domain.band.repository;
+package com.mate.band.domain.user.repository;
 
-import com.mate.band.domain.band.entity.BandEntity;
-import com.mate.band.domain.band.entity.QBandEntity;
-import com.mate.band.domain.band.entity.QBandRecruitInfoEntity;
 import com.mate.band.domain.metadata.constants.MusicGenre;
 import com.mate.band.domain.metadata.constants.Position;
 import com.mate.band.domain.metadata.entity.*;
+import com.mate.band.domain.user.entity.QUserEntity;
+import com.mate.band.domain.user.entity.UserEntity;
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.dsl.ListPath;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -19,22 +18,19 @@ import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
-public class BandRepositoryImpl implements BandRepositoryCustom {
+public class UserRepositoryImpl implements UserRepositoryCustom {
 
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<BandEntity> findBandList(List<Long> districts, List<String> genres, List<String> positions, boolean recruitYn, Pageable pageable) {
-        QBandEntity bandEntity = QBandEntity.bandEntity;
-        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = bandEntity.districts;
-        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = bandEntity.musicGenres;
-        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = bandEntity.recruitingPositions;
-        QBandRecruitInfoEntity bandRecruitInfo = bandEntity.bandRecruitInfoEntity;
+    public Page<UserEntity> findUserList(List<Long> districts, List<String> genres, List<String> positions, Pageable pageable) {
+        QUserEntity userEntity = QUserEntity.userEntity;
+        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = userEntity.districts;
+        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = userEntity.musicGenres;
+        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = userEntity.positions;
 
         BooleanBuilder builder = new BooleanBuilder();
-        if (recruitYn) {
-            builder.and(bandEntity.recruitYn.eq(true));
-        }
+
         if (!districts.isEmpty()) {
             builder.and(districtList.any().district.id.in(districts));
         }
@@ -44,13 +40,12 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
         if (!positions.isEmpty()) {
             builder.and(positionList.any().position.in(Position.values(positions)));
         }
-        builder.and(bandEntity.exposeYn.eq(true))
-                .and(bandEntity.deleteYn.eq(false));
+        builder.and(userEntity.exposeYn.eq(true))
+                .and(userEntity.deleteYn.eq(false));
 
-        List<BandEntity> content = jpaQueryFactory.
-                selectDistinct(bandEntity)
-                .from(bandEntity)
-                .leftJoin(bandRecruitInfo).fetchJoin()
+        List<UserEntity> content = jpaQueryFactory.
+                select(userEntity)
+                .from(userEntity)
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize() + 1)
@@ -63,5 +58,6 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
                 hasNext ? pageable.getOffset() + pageable.getPageSize() : pageable.getOffset() + content.size()
         );
     }
+
 
 }

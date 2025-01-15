@@ -16,7 +16,7 @@ import java.util.Optional;
  * @since : 2024/12/17
  */
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRepositoryCustom {
 
     @Query("select u from UserEntity u where u.id = :userId and u.deleteYn = false")
     Optional<UserEntity> findById(long userId);
