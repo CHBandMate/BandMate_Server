@@ -25,6 +25,7 @@ public class BandController {
 
     private final BandService bandService;
 
+    // TODO SNS 정보 저장 추가
     @Operation(summary = "밴드 프로필 등록")
     @PostMapping("/profile")
     public ApiResponse<?> registerBandProfile(@AuthUser UserEntity user, @RequestBody RegisterBandProfileRequestDTO profileRequest) {

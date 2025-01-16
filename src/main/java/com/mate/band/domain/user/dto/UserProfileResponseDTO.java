@@ -14,6 +14,8 @@ public record UserProfileResponseDTO(
         String introduction,
         List<ProfileMetaDataDTO> genres,
         List<ProfileMetaDataDTO> positions,
-        List<DistrictDataDTO> districts
+        List<DistrictDataDTO> districts,
+        List<UserProfileBandInfoDTO> bandInfos,
+        boolean favoriteYn
 ) {
 }

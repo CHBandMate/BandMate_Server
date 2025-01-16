@@ -11,6 +11,7 @@ import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.metadata.repository.*;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
+import com.mate.band.domain.user.dto.UserProfileBandInfoDTO;
 import com.mate.band.domain.user.dto.UserProfileResponseDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
@@ -128,5 +129,52 @@ public class UserService {
         }
         return districtEntityList;
     }
+
+    @Transactional
+    public UserProfileResponseDTO getUserProfile(long userId) {
+        UserEntity user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
+
+        // 음악 장르 데이터
+        List<ProfileMetaDataDTO> musicGenreList =
+                user.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
+                        .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
+                        .toList();
+
+        // 모집 포지션 데이터
+        List<ProfileMetaDataDTO> positionList =
+                user.getPositions().stream().map(PositionMappingEntity::getPosition).toList()
+                        .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
+                        .toList();
+
+        // 합주 지역 데이터
+        List<DistrictDataDTO> districtList =
+                user.getDistricts().stream().map(districtMappingEntity ->
+                        DistrictDataDTO.builder()
+                                .districtId(districtMappingEntity.getDistrict().getId())
+                                .districtName(districtMappingEntity.getDistrict().getDistrictName())
+                                .build()
+                ).toList();
+
+        List<UserProfileBandInfoDTO> bandInfoList =
+                user.getBands().stream().map(band ->
+                        UserProfileBandInfoDTO.builder()
+                                .bandId(band.getId())
+                                .bandName(band.getBandName())
+                                .profileImageUrl(band.getProfileImageUrl())
+                                .build()
+                ).toList();
+
+        return UserProfileResponseDTO.builder()
+                .userId(user.getId())
+                .profileImageUrl(user.getProfileImageUrl())
+                .nickname(user.getNickname())
+                .introduction(user.getIntroduction())
+                .genres(musicGenreList)
+                .positions(positionList)
+                .districts(districtList)
+                .bandInfos(bandInfoList)
+                .build();
+    }
+
 
 }

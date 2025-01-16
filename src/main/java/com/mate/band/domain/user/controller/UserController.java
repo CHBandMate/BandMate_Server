@@ -26,6 +26,7 @@ import java.util.Optional;
 public class UserController {
     private final UserService userService;
 
+    // TODO SNS 정보 저장 추가
     @Operation(summary = "개인 프로필 등록")
     @PostMapping("/profile")
     public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterUserProfileRequestDTO profileRequest) {
@@ -68,5 +69,13 @@ public class UserController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "userEntity.createdAt"));
         return ApiResponse.success(userService.getUserProfileList(districts, genres, positions, pageable));
     }
+
+    @Operation(summary = "유저 프로필 조회")
+    @GetMapping("/profile/{userId}")
+    public ApiResponse<UserProfileResponseDTO> getUserProfile(@PathVariable long userId) {
+        return ApiResponse.success(userService.getUserProfile(userId));
+    }
+
+
 
 }

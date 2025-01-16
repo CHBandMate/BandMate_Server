@@ -18,7 +18,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRepositoryCustom {
 
-    @Query("select u from UserEntity u where u.id = :userId and u.deleteYn = false")
+    @Query("select distinct u from UserEntity u left join fetch u.bands b where u.id = :userId and u.deleteYn = false")
     Optional<UserEntity> findById(long userId);
 
     Optional<UserEntity> findByOauthId(String oauthId);
