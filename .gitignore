@@ -18,6 +18,7 @@ bin/
 !**/src/test/**/bin/
 /src/main/resources/application*.*
 /src/main/resources/config/application*.*
+src/main/generated
 
 ### IntelliJ IDEA ###
 .idea

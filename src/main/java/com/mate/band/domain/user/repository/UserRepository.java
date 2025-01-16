@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -15,9 +16,9 @@ import java.util.Optional;
  * @since : 2024/12/17
  */
 @Repository
-public interface UserRepository extends JpaRepository<UserEntity, Long> {
+public interface UserRepository extends JpaRepository<UserEntity, Long>, UserRepositoryCustom {
 
-    @Query("select u from UserEntity u where u.id = :userId and u.deleteYn = false")
+    @Query("select distinct u from UserEntity u left join fetch u.bands b where u.id = :userId and u.deleteYn = false")
     Optional<UserEntity> findById(long userId);
 
     Optional<UserEntity> findByOauthId(String oauthId);
@@ -27,4 +28,8 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     @Query("select u from UserEntity u where u.oauthId = :oauthId and u.oauthType = :oauthType")
     Optional<UserEntity> findByOAuthInfo(@Param("oauthId") String oauthId, @Param("oauthType") OAuthType oauthType);
+
+    @Query("select u from UserEntity u where u.exposeYn = true and u.deleteYn = false")
+    List<UserEntity> findExposeUser();
+
 }

@@ -7,13 +7,18 @@ import lombok.Builder;
 import java.util.List;
 
 @Builder
-public record BandRecruitInfoResponseDTO(
+public record BandProfileResponseDTO(
         long bandId,
-        String bandProfileImageUrl,
+        long leaderId,
+        String profileImageUrl,
+        String leaderNickname,
         String bandName,
         String recruitTitle,
-        String description,
         List<ProfileMetaDataDTO> genres,
         List<ProfileMetaDataDTO> positions,
-        List<DistrictDataDTO> districts
-) {}
+        List<DistrictDataDTO> districts,
+        List<BandMemberDTO> members,
+        String description,
+        boolean favoriteYn
+) {
+}

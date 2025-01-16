@@ -1,8 +1,6 @@
 package com.mate.band.domain.band.service;
 
-import com.mate.band.domain.band.dto.BandMemberDTO;
-import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
-import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
+import com.mate.band.domain.band.dto.*;
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
 import com.mate.band.domain.band.entity.BandRecruitInfoEntity;
@@ -30,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -44,82 +43,6 @@ public class BandService {
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
-
-    public Boolean checkBandName(String bandName) {
-        return bandRepository.findByBandName(bandName).isPresent();
-    }
-
-    @Transactional
-    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(Pageable pageable) {
-        Page<BandEntity> recruitingBandList = bandRepository.findRecruitingBandList(pageable);
-        Page<BandRecruitInfoResponseDTO> bandRecruitInfoPage = recruitingBandList.map(recruitingBand -> {
-            // 음악 장르 데이터
-            List<ProfileMetaDataDTO> musicGenres =
-                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
-                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
-                            .toList();
-
-            // 모집 포지션 데이터
-            List<ProfileMetaDataDTO> positions =
-                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
-                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
-                            .toList();
-
-            // 합주 지역 데이터
-            List<DistrictDataDTO> districts =
-                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
-                            DistrictDataDTO.builder()
-                                    .districtId(districtMappingEntity.getDistrict().getId())
-                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
-                                    .build()
-                    ).toList();
-
-            return BandRecruitInfoResponseDTO.builder()
-                    .bandId(recruitingBand.getId())
-                    .bandName(recruitingBand.getBandName())
-                    .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
-                    .genres(musicGenres)
-                    .positions(positions)
-                    .districts(districts)
-                    .build();
-        });
-        return bandRecruitInfoPage;
-
-//        for (BandEntity recruitingBand : recruitingBandList) {
-//
-            // 음악 장르 데이터
-//            List<ProfileMetaDataDTO> musicGenres =
-//                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
-//                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
-//                            .toList();
-//
-//            // 모집 포지션 데이터
-//            List<ProfileMetaDataDTO> positions =
-//                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
-//                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
-//                            .toList();
-//
-//            // 합주 지역 데이터
-//            List<DistrictDataDTO> districts =
-//                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
-//                            DistrictDataDTO.builder()
-//                                    .districtId(districtMappingEntity.getDistrict().getId())
-//                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
-//                                    .build()
-//                    ).toList();
-//
-//            bandRecruitInfoList.add(
-//                    BandRecruitInfoResponseDTO.builder()
-//                            .bandId(recruitingBand.getId())
-//                            .bandName(recruitingBand.getBandName())
-//                            .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
-//                            .genres(musicGenres)
-//                            .positions(positions)
-//                            .districts(districts)
-//                            .build()
-//            );
-//        }
-    }
 
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
     public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
@@ -158,7 +81,7 @@ public class BandService {
         // 밴드 멤버 저장
         if (!profileParam.bandMember().isEmpty()) {
             List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
-            for (BandMemberDTO bandMember : profileParam.bandMember()) {
+            for (RegisterBandMemberDTO bandMember : profileParam.bandMember()) {
                 UserEntity member;
                 if (bandMember.userId() == userEntity.getId()) {    // 나 자신 일때
                     member = userEntity;
@@ -191,6 +114,101 @@ public class BandService {
                             .build();
             bandRecruitInfoRepository.save(recruitInfoEntity);
         }
+    }
+
+    public Boolean checkBandName(String bandName) {
+        return bandRepository.findByBandName(bandName).isPresent();
+    }
+
+    // TODO 리팩토링, 즐겨찾기 여부 추가
+    @Transactional
+    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, Pageable pageable) {
+        List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
+        List<String> genreParam = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
+        List<String> positionParam = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
+
+        Page<BandEntity> recruitingBandList = bandRepository.findBandList(districtParam, genreParam, positionParam, true, pageable);
+        return recruitingBandList.map(recruitingBand -> {
+            // 음악 장르 데이터
+            List<ProfileMetaDataDTO> musicGenreList =
+                    recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
+                            .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
+                            .toList();
+
+            // 모집 포지션 데이터
+            List<ProfileMetaDataDTO> positionList =
+                    recruitingBand.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
+                            .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
+                            .toList();
+
+            // 합주 지역 데이터
+            List<DistrictDataDTO> districtList =
+                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
+                            DistrictDataDTO.builder()
+                                    .districtId(districtMappingEntity.getDistrict().getId())
+                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
+                                    .build()
+                    ).toList();
+
+            return BandRecruitInfoResponseDTO.builder()
+                    .bandId(recruitingBand.getId())
+                    .bandName(recruitingBand.getBandName())
+                    .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
+                    .description(recruitingBand.getBandRecruitInfoEntity().getDescription())
+                    .genres(musicGenreList)
+                    .positions(positionList)
+                    .districts(districtList)
+                    .build();
+        });
+    }
+
+    @Transactional
+    public BandProfileResponseDTO getBandProfileDetail(long bandId) {
+        BandEntity band = bandRepository.findBandWithRecruitInfoById(bandId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+
+        // 음악 장르 데이터
+        List<ProfileMetaDataDTO> musicGenreList =
+                band.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
+                        .stream().map(musicGenre -> ProfileMetaDataDTO.builder().key(musicGenre.getkey()).value(musicGenre.getValue()).build())
+                        .toList();
+
+        // 모집 포지션 데이터
+        List<ProfileMetaDataDTO> positionList =
+                band.getRecruitingPositions().stream().map(PositionMappingEntity::getPosition).toList()
+                        .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
+                        .toList();
+
+        // 합주 지역 데이터
+        List<DistrictDataDTO> districtList =
+                band.getDistricts().stream().map(districtMappingEntity ->
+                        DistrictDataDTO.builder()
+                                .districtId(districtMappingEntity.getDistrict().getId())
+                                .districtName(districtMappingEntity.getDistrict().getDistrictName())
+                                .build()
+                ).toList();
+
+        // 밴드 소속 멤버 데이터
+        List<BandMemberDTO> bandMemberList =
+                band.getBandMembers().stream().map(member ->
+                        BandMemberDTO.builder()
+                                .userId(member.getId())
+                                .nickname(member.getUser().getNickname())
+                                .position(member.getPosition().getValue())
+                                .build()
+                ).toList();
+
+        return BandProfileResponseDTO.builder()
+                .bandId(band.getId())
+                .bandName(band.getBandName())
+                .leaderId(band.getUser().getId())
+                .leaderNickname(band.getUser().getNickname())
+                .recruitTitle(band.getBandRecruitInfoEntity().getTitle())
+                .description(band.getBandRecruitInfoEntity().getDescription())
+                .genres(musicGenreList)
+                .positions(positionList)
+                .districts(districtList)
+                .members(bandMemberList)
+                .build();
     }
 
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {

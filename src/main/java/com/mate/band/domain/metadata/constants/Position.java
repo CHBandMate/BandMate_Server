@@ -3,6 +3,9 @@ package com.mate.band.domain.metadata.constants;
 import com.mate.band.domain.common.EnumModel;
 import lombok.AllArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @AllArgsConstructor
 public enum Position implements EnumModel {
     GUITAR("GUITAR", "기타"),
@@ -23,6 +26,14 @@ public enum Position implements EnumModel {
     @Override
     public String getValue() {
         return this.value;
+    }
+
+    public static List<Position> values(List<String> param) {
+        List<Position> result = new ArrayList<>();
+        for (String s : param) {
+            result.add(Position.valueOf(s));
+        }
+        return result;
     }
 
 }

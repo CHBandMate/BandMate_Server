@@ -82,19 +82,19 @@ public class UserEntity extends BaseTimeEntity implements Serializable {
     private Boolean deleteYn = false;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PositionMappingEntity> myPositions = new ArrayList<>();
+    private List<PositionMappingEntity> positions = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<DistrictMappingEntity> myRegions = new ArrayList<>();
+    private List<DistrictMappingEntity> districts = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<MusicGenreMappingEntity> myMusicGenres = new ArrayList<>();
+    private List<MusicGenreMappingEntity> musicGenres = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BandEntity> myBands = new ArrayList<>();
+    private List<BandEntity> bands = new ArrayList<>();
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<BandMemberEntity> myPositionInBands = new ArrayList<>();
+    private List<BandMemberEntity> positionInBands = new ArrayList<>();
 
     public void registryUser(RegisterUserProfileRequestDTO registerProfile) {
         this.role = Role.USER;

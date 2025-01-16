@@ -27,7 +27,7 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
-    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district"};
+    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district", "/band/main/recruit", "/user/main/profile"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private static final String[] ALL_ROLES = {"USER", "ADMIN", "LEADER", "NOT_REGISTERED"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
