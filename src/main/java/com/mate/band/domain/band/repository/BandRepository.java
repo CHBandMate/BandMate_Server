@@ -12,6 +12,14 @@ public interface BandRepository extends JpaRepository<BandEntity, Long>, BandRep
     @Query("select b from BandEntity b where b.bandName = :bandName and b.deleteYn = false")
     Optional<BandEntity> findByBandName(String bandName);
 
+    @Query("select b " +
+            "from BandEntity b " +
+            "left join fetch b.user " +
+            "left join fetch b.bandRecruitInfoEntity " +
+            "where b.id= :bandId " +
+            "and b.deleteYn = false")
+    Optional<BandEntity> findBandWithRecruitInfoById(long bandId);
+
 //    @Query("select b from BandEntity b " +
 //            "left join fetch b.bandRecruitInfoEntity " +
 //            "left join b.districts d " +
@@ -23,4 +31,18 @@ public interface BandRepository extends JpaRepository<BandEntity, Long>, BandRep
 //            "and (:genres IS NULL OR m.genre IN :genres) " +
 //            "and (:positions IS NULL OR r.position IN :positions) ")
 //    Page<BandEntity> findRecruitingBandList(@Param("districts") List<Long> districts, @Param("genres") List<String> genres, @Param("positions") List<String> positions, Pageable pageable);
+
+
+//    @Query("select new com.mate.band.domain.band.dto.BandProfileResponseDTO(" +
+//            "b.id, b.user.id, b.profileImageUrl, b.user.nickname, ri.title, " +
+//            ") " +
+//            "from BandEntity b " +
+//            "left join b.bandRecruitInfoEntity ri " +
+//            "left join b.districts d " +
+//            "left join b.musicGenres m " +
+//            "left join b.recruitingPositions r " +
+//            "where b.id = :bandId " +
+//            "and b.deleteYn = false " +
+//            "and b.recruitYn = true")
+//    Optional<BandProfileResponseDTO> findBandProfileById(long bandId);
 }

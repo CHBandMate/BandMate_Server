@@ -25,15 +25,15 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
 
     @Override
     public Page<BandEntity> findBandList(List<Long> districts, List<String> genres, List<String> positions, boolean recruitYn, Pageable pageable) {
-        QBandEntity bandEntity = QBandEntity.bandEntity;
-        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = bandEntity.districts;
-        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = bandEntity.musicGenres;
-        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = bandEntity.recruitingPositions;
-        QBandRecruitInfoEntity bandRecruitInfo = bandEntity.bandRecruitInfoEntity;
+        QBandEntity band = QBandEntity.bandEntity;
+        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = band.districts;
+        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = band.musicGenres;
+        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = band.recruitingPositions;
+        QBandRecruitInfoEntity bandRecruitInfo = band.bandRecruitInfoEntity;
 
         BooleanBuilder builder = new BooleanBuilder();
         if (recruitYn) {
-            builder.and(bandEntity.recruitYn.eq(true));
+            builder.and(band.recruitYn.eq(true));
         }
         if (!districts.isEmpty()) {
             builder.and(districtList.any().district.id.in(districts));
@@ -44,12 +44,12 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
         if (!positions.isEmpty()) {
             builder.and(positionList.any().position.in(Position.values(positions)));
         }
-        builder.and(bandEntity.exposeYn.eq(true))
-                .and(bandEntity.deleteYn.eq(false));
+        builder.and(band.exposeYn.eq(true))
+                .and(band.deleteYn.eq(false));
 
         List<BandEntity> content = jpaQueryFactory.
-                selectDistinct(bandEntity)
-                .from(bandEntity)
+                selectDistinct(band)
+                .from(band)
                 .leftJoin(bandRecruitInfo).fetchJoin()
                 .where(builder)
                 .offset(pageable.getOffset())
@@ -63,5 +63,27 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
                 hasNext ? pageable.getOffset() + pageable.getPageSize() : pageable.getOffset() + content.size()
         );
     }
+
+
+//    public BandProfileResponseDTO findBandProfileById(long bandId) {
+//        QBandEntity band = QBandEntity.bandEntity;
+//        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = band.districts;
+//        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = band.musicGenres;
+//        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = band.recruitingPositions;
+//        QBandRecruitInfoEntity bandRecruitInfo = band.bandRecruitInfoEntity;
+//
+//        BooleanBuilder builder = new BooleanBuilder();
+//        builder.and(band.id.eq(bandId))
+//                .and(band.exposeYn.eq(true))
+//                .and(band.deleteYn.eq(false));
+//
+//        jpaQueryFactory
+//                .select(Projections.constructor(BandProfileResponseDTO.class,
+//                        band.id, band.user.id, band.profileImageUrl, band.user.nickname, bandRecruitInfo.title,))
+//                .from(band)
+//                .where(builder).fetchOne();
+//
+//
+//    }
 
 }

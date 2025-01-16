@@ -13,7 +13,7 @@ public record RegisterBandProfileRequestDTO(
         @Schema(description = "소개", example = "안녕하세요. 우리 밴드는 놀기만 하고 합주는 안합니다.")
         String introduction,
 
-        List<BandMemberDTO> bandMember,
+        List<RegisterBandMemberDTO> bandMember,
 
         List<ProfileSNSUrlDTO> snsUrls,
 

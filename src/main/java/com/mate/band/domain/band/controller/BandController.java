@@ -1,5 +1,6 @@
 package com.mate.band.domain.band.controller;
 
+import com.mate.band.domain.band.dto.BandProfileResponseDTO;
 import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.band.service.BandService;
@@ -55,5 +56,13 @@ public class BandController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "bandRecruitInfoEntity.createdAt"));
         return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, pageable));
     }
+
+
+    @Operation(summary = "밴드 프로필 조회")
+    @PostMapping("/profile/{bandId}")
+    public ApiResponse<BandProfileResponseDTO> getBandProfile(@PathVariable long bandId) {
+        return ApiResponse.success(bandService.getBandProfileDetail(bandId));
+    }
+
 
 }

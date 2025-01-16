@@ -26,6 +26,7 @@ public enum ErrorCode {
     JSON_PARSE(400, "JSON_PARSE", "Json parsing Exception"),
     NOT_EXIST_CODE(400, "NOT_EXIST_CODE", "존재하지 않는 코드입니다."),
     NOT_EXIST_USER(400, "NOT_EXIST_USER", "존재하지 않는 회원입니다."),
+    NOT_EXIST_BAND(400, "NOT_EXIST_BAND", "존재하지 않는 밴드입니다."),
     REGISTERED_USER(400, "REGISTERED_USER", "이미 등록 된 회원입니다."),
     OTHER_ERROR(400, "OTHER_ERROR", "Other Error"),
 
