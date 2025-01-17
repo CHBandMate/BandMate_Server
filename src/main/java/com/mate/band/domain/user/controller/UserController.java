@@ -58,7 +58,7 @@ public class UserController {
                     "<br/> genres(장르 코드) : JAZZ,KPOP... or ALL" +
                     "<br/> positions(포지션 코드) : BASS,GUITAR... or ALL" +
                     "<br/> pageNumber : 현재 페이지 / pageSize : 페이지당 게시글 수 / totalElements : 총 게시글 수 / totalPages : 전체 페이지 수")
-    @GetMapping("/main/profile")
+    @GetMapping("/profile")
     public ApiResponse<Page<UserProfileResponseDTO>> getUserProfileList(
             @Schema(description = "페이지", example = "0") @RequestParam(defaultValue = "0") int page
             , @Schema(description = "페이지 사이즈", example = "10") @RequestParam(defaultValue = "10") int size

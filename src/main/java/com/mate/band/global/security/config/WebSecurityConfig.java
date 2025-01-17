@@ -27,7 +27,7 @@ import org.springframework.web.cors.CorsUtils;
 @RequiredArgsConstructor
 public class WebSecurityConfig {
     public static final String[] IGNORING_URI = {"/v3/api-docs/**", "/api-docs/**", "/swagger-ui.html", "/swagger-ui/**", "/favicon.ico", "/default-ui.css"};
-    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district", "/band/main/recruit", "/user/main/profile"};
+    public static final String[] PERMITTED_URI = {"/login", "/auth/token", "/auth/token/reissue", "/profile/metadata", "/profile/metadata/district", "/band/profile", "/user/profile"};
     private static final String[] PERMITTED_ROLES = {"USER", "ADMIN", "LEADER"};
     private static final String[] ALL_ROLES = {"USER", "ADMIN", "LEADER", "NOT_REGISTERED"};
     private final CustomCorsConfigurationSource customCorsConfigurationSource;
@@ -53,7 +53,7 @@ public class WebSecurityConfig {
                 .formLogin(FormLoginConfigurer::disable)
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(CorsUtils::isPreFlightRequest).permitAll() // CORS pre-flight 요청 허용
-                        .requestMatchers(PERMITTED_URI).permitAll() // TODO 메인 기본 데이터 조회 추가
+                        .requestMatchers(PERMITTED_URI).permitAll()
 
                         // 회원 프로필 등록 관련
                         .requestMatchers(HttpMethod.POST,"/user/profile").hasRole("NOT_REGISTERED")

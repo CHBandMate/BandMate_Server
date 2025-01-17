@@ -45,17 +45,19 @@ public class BandController {
                     "<br/> districts(지역 코드) : 1,2,3... or ALL" +
                     "<br/> genres(장르 코드) : JAZZ,KPOP... or ALL" +
                     "<br/> positions(포지션 코드) : BASS,GUITAR... or ALL" +
+                    "<br/> recruitYn(멤버 모집 여부) : true or false" +
                     "<br/> pageNumber : 현재 페이지 / pageSize : 페이지당 게시글 수 / totalElements : 총 게시글 수 / totalPages : 전체 페이지 수")
-    @GetMapping("/main/recruit")
+    @GetMapping("/profile")
     public ApiResponse<Page<BandRecruitInfoResponseDTO>> getBandRecruitInfoList(
             @Schema(description = "페이지", example = "0") @RequestParam(defaultValue = "0") int page
             , @Schema(description = "페이지 사이즈", example = "10") @RequestParam(defaultValue = "10") int size
             , @Schema(description = "검색 지역", example = "ALL") @RequestParam(defaultValue = "ALL") String districts
             , @Schema(description = "검색 장르", example = "ALL") @RequestParam(defaultValue = "ALL") String genres
             , @Schema(description = "검색 포지션", example = "ALL") @RequestParam(defaultValue = "ALL") String positions
+            , @Schema(description = "멤버 모집 여부", example = "true") @RequestParam(defaultValue = "true") boolean recruitYn
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "bandRecruitInfoEntity.createdAt"));
-        return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, pageable));
+        return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, recruitYn, pageable));
     }
 
 
