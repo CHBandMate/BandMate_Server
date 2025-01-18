@@ -28,6 +28,8 @@ public enum ErrorCode {
     NOT_EXIST_USER(400, "NOT_EXIST_USER", "존재하지 않는 회원입니다."),
     NOT_EXIST_BAND(400, "NOT_EXIST_BAND", "존재하지 않는 밴드입니다."),
     REGISTERED_USER(400, "REGISTERED_USER", "이미 등록 된 회원입니다."),
+    ALREADY_APPLIED_BAND(400, "ALREADY_APPLIED_BAND", "이미 지원 한 밴드입니다."),
+    ALREADY_BAND_MEMBER(400, "ALREADY_BAND_MEMBER", "이미 가입 되어있는 밴드입니다."),
     OTHER_ERROR(400, "OTHER_ERROR", "Other Error"),
 
     //************************************************ Auth Error ************************************************//

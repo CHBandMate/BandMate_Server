@@ -23,7 +23,7 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public Page<UserEntity> findUserList(List<Long> districts, List<String> genres, List<String> positions, Pageable pageable) {
+    public Page<UserEntity> findUserList(UserEntity authUser, List<Long> districts, List<String> genres, List<String> positions, Pageable pageable) {
         QUserEntity userEntity = QUserEntity.userEntity;
         ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = userEntity.districts;
         ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = userEntity.musicGenres;
@@ -31,6 +31,9 @@ public class UserRepositoryImpl implements UserRepositoryCustom {
 
         BooleanBuilder builder = new BooleanBuilder();
 
+        if (authUser != null) {
+            builder.and(userEntity.id.ne(authUser.getId()));
+        }
         if (!districts.isEmpty()) {
             builder.and(districtList.any().district.id.in(districts));
         }

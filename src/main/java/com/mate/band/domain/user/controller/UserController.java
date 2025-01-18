@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +24,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -60,6 +62,7 @@ public class UserController {
                     "<br/> pageNumber : 현재 페이지 / pageSize : 페이지당 게시글 수 / totalElements : 총 게시글 수 / totalPages : 전체 페이지 수")
     @GetMapping("/profile")
     public ApiResponse<Page<UserProfileResponseDTO>> getUserProfileList(
+            @AuthUser UserEntity authUser,
             @Schema(description = "페이지", example = "0") @RequestParam(defaultValue = "0") int page
             , @Schema(description = "페이지 사이즈", example = "10") @RequestParam(defaultValue = "10") int size
             , @Schema(description = "검색 지역", example = "ALL") @RequestParam(defaultValue = "ALL") String districts
@@ -67,7 +70,7 @@ public class UserController {
             , @Schema(description = "검색 포지션", example = "ALL") @RequestParam(defaultValue = "ALL") String positions
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "userEntity.createdAt"));
-        return ApiResponse.success(userService.getUserProfileList(districts, genres, positions, pageable));
+        return ApiResponse.success(userService.getUserProfileList(authUser, districts, genres, positions, pageable));
     }
 
     @Operation(summary = "유저 프로필 조회")
@@ -75,7 +78,5 @@ public class UserController {
     public ApiResponse<UserProfileResponseDTO> getUserProfile(@PathVariable long userId) {
         return ApiResponse.success(userService.getUserProfile(userId));
     }
-
-
 
 }

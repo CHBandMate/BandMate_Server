@@ -1,5 +1,6 @@
 package com.mate.band.domain.band.controller;
 
+import com.mate.band.domain.band.dto.BandApplyRequestDTO;
 import com.mate.band.domain.band.dto.BandProfileResponseDTO;
 import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
 import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
@@ -60,12 +61,17 @@ public class BandController {
         return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, recruitYn, pageable));
     }
 
-
     @Operation(summary = "밴드 프로필 조회")
     @PostMapping("/profile/{bandId}")
     public ApiResponse<BandProfileResponseDTO> getBandProfile(@PathVariable long bandId) {
         return ApiResponse.success(bandService.getBandProfileDetail(bandId));
     }
 
+    @Operation(summary = "밴드 가입 신청")
+    @PostMapping("/apply")
+    public ApiResponse<?> applyBand(@AuthUser UserEntity user, @RequestBody BandApplyRequestDTO bandApplyRequest) {
+        bandService.applyBand(user, bandApplyRequest);
+        return ApiResponse.success();
+    }
 
 }

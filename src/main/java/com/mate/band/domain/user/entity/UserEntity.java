@@ -109,4 +109,8 @@ public class UserEntity extends BaseTimeEntity implements Serializable {
         this.exposeYn = registerProfile.exposeYn();
     }
 
+    public void updateRole(Role role) {
+        this.role = role;
+    }
+
 }
