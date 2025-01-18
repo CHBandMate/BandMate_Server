@@ -5,6 +5,7 @@ import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.user.entity.UserEntity;
+import com.mate.band.domain.user.entity.UserInviteInfoEntity;
 import com.mate.band.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -61,5 +62,11 @@ public class BandEntity extends BaseTimeEntity {
 
     @OneToOne(mappedBy = "band")
     private BandRecruitInfoEntity bandRecruitInfoEntity;
+
+    @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandApplyInfoEntity> bandApplyInfos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInviteInfoEntity> userInviteInfos = new ArrayList<>();
 
 }

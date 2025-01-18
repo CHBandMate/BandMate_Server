@@ -2,6 +2,7 @@ package com.mate.band.domain.user.controller;
 
 import com.mate.band.domain.user.dto.FindUserResponseDTO;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
+import com.mate.band.domain.user.dto.UserInviteRequestDTO;
 import com.mate.band.domain.user.dto.UserProfileResponseDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.service.UserService;
@@ -77,6 +78,13 @@ public class UserController {
     @GetMapping("/profile/{userId}")
     public ApiResponse<UserProfileResponseDTO> getUserProfile(@PathVariable long userId) {
         return ApiResponse.success(userService.getUserProfile(userId));
+    }
+
+    @Operation(summary = "유저 밴드 초대")
+    @PostMapping("/invite")
+    public ApiResponse<?> inviteUser(@RequestBody UserInviteRequestDTO inviteRequest) {
+        userService.inviteUser(inviteRequest);
+        return ApiResponse.success();
     }
 
 }
