@@ -2,6 +2,7 @@ package com.mate.band.domain.user.controller;
 
 import com.mate.band.domain.user.dto.FindUserResponseDTO;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
+import com.mate.band.domain.user.dto.UserInviteRequestDTO;
 import com.mate.band.domain.user.dto.UserProfileResponseDTO;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.service.UserService;
@@ -11,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/user")
 @RequiredArgsConstructor
+@Slf4j
 public class UserController {
     private final UserService userService;
 
@@ -58,8 +61,9 @@ public class UserController {
                     "<br/> genres(장르 코드) : JAZZ,KPOP... or ALL" +
                     "<br/> positions(포지션 코드) : BASS,GUITAR... or ALL" +
                     "<br/> pageNumber : 현재 페이지 / pageSize : 페이지당 게시글 수 / totalElements : 총 게시글 수 / totalPages : 전체 페이지 수")
-    @GetMapping("/main/profile")
+    @GetMapping("/profile")
     public ApiResponse<Page<UserProfileResponseDTO>> getUserProfileList(
+            @AuthUser UserEntity authUser,
             @Schema(description = "페이지", example = "0") @RequestParam(defaultValue = "0") int page
             , @Schema(description = "페이지 사이즈", example = "10") @RequestParam(defaultValue = "10") int size
             , @Schema(description = "검색 지역", example = "ALL") @RequestParam(defaultValue = "ALL") String districts
@@ -67,7 +71,13 @@ public class UserController {
             , @Schema(description = "검색 포지션", example = "ALL") @RequestParam(defaultValue = "ALL") String positions
     ) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "userEntity.createdAt"));
-        return ApiResponse.success(userService.getUserProfileList(districts, genres, positions, pageable));
+        return ApiResponse.success(userService.getUserProfileList(authUser, districts, genres, positions, pageable));
+    }
+
+    @Operation(summary = "내 프로필 조회")
+    @GetMapping("/profile/my")
+    public ApiResponse<UserProfileResponseDTO> getMyProfile(@AuthUser UserEntity userEntity) {
+        return ApiResponse.success(userService.getUserProfile(userEntity.getId()));
     }
 
     @Operation(summary = "유저 프로필 조회")
@@ -76,6 +86,11 @@ public class UserController {
         return ApiResponse.success(userService.getUserProfile(userId));
     }
 
-
+    @Operation(summary = "유저 밴드 초대")
+    @PostMapping("/invite")
+    public ApiResponse<?> inviteUser(@RequestBody UserInviteRequestDTO inviteRequest) {
+        userService.inviteUser(inviteRequest);
+        return ApiResponse.success();
+    }
 
 }

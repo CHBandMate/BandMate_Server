@@ -1,9 +1,11 @@
 package com.mate.band.domain.band.service;
 
 import com.mate.band.domain.band.dto.*;
+import com.mate.band.domain.band.entity.BandApplyInfoEntity;
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
 import com.mate.band.domain.band.entity.BandRecruitInfoEntity;
+import com.mate.band.domain.band.repository.BandApplyInfoRepository;
 import com.mate.band.domain.band.repository.BandMemberEntityRepository;
 import com.mate.band.domain.band.repository.BandRecruitInfoRepository;
 import com.mate.band.domain.band.repository.BandRepository;
@@ -21,6 +23,7 @@ import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
+import com.mate.band.global.security.constants.Role;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -30,6 +33,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +47,7 @@ public class BandService {
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
+    private final BandApplyInfoRepository bandApplyInfoRepository;
 
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
     public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
@@ -114,6 +119,9 @@ public class BandService {
                             .build();
             bandRecruitInfoRepository.save(recruitInfoEntity);
         }
+
+        // 등급 변경
+        user.updateRole(Role.LEADER);
     }
 
     public Boolean checkBandName(String bandName) {
@@ -122,12 +130,12 @@ public class BandService {
 
     // TODO 리팩토링, 즐겨찾기 여부 추가
     @Transactional
-    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, Pageable pageable) {
+    public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, boolean recruitYn, Pageable pageable) {
         List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
         List<String> genreParam = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
         List<String> positionParam = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
 
-        Page<BandEntity> recruitingBandList = bandRepository.findBandList(districtParam, genreParam, positionParam, true, pageable);
+        Page<BandEntity> recruitingBandList = bandRepository.findBandList(districtParam, genreParam, positionParam, recruitYn, pageable);
         return recruitingBandList.map(recruitingBand -> {
             // 음악 장르 데이터
             List<ProfileMetaDataDTO> musicGenreList =
@@ -160,6 +168,15 @@ public class BandService {
                     .districts(districtList)
                     .build();
         });
+    }
+
+    @Transactional
+    public List<BandProfileResponseDTO> getMyBandProfiles(UserEntity user) {
+        List<BandProfileResponseDTO> myBandProfileList = new ArrayList<>();
+        for (BandEntity band : bandRepository.findByUserId(user.getId())) {
+            myBandProfileList.add(getBandProfileDetail(band.getId()));
+        }
+        return myBandProfileList;
     }
 
     @Transactional
@@ -217,6 +234,31 @@ public class BandService {
             throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
         }
         return districtEntityList;
+    }
+
+    @Transactional
+    public void applyBand(UserEntity user, BandApplyRequestDTO bandApplyRequest) {
+
+        // 이미 지원한 밴드
+        if (bandApplyInfoRepository.findByUserId(user.getId()).isPresent()) {
+            throw new BusinessException(ErrorCode.ALREADY_APPLIED_BAND);
+        }
+
+        BandEntity band = bandRepository.findById(bandApplyRequest.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+
+        // 본인 밴드에 지원
+        if (Objects.equals(band.getUser().getId(), user.getId())) {
+            throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+        }
+
+        // 밴드 멤버가 지원
+        for (BandMemberEntity member : band.getBandMembers()) {
+            if (Objects.equals(member.getUser().getId(), user.getId())) {
+                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+            }
+        }
+
+        bandApplyInfoRepository.save(BandApplyInfoEntity.builder().band(band).user(user).description(bandApplyRequest.applyDescription()).build());
     }
 
 }

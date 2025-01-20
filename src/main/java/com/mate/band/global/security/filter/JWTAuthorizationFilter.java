@@ -30,13 +30,14 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        if (isPermittedURI(request.getRequestURI())) {
+        String headerToken = request.getHeader(Auth.ACCESS_HEADER.getValue());
+        if (isPermittedURI(request.getRequestURI()) && headerToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
 
         // AccessToken 검증
-        String accessToken = JWTUtils.getTokenFromHeader(request.getHeader(Auth.ACCESS_HEADER.getValue()));
+        String accessToken = JWTUtils.getTokenFromHeader(headerToken);
         if (accessToken == null || accessToken.equalsIgnoreCase("")) {
             throw new TokenNullException(ErrorCode.TOKEN_NUll.getErrorMessage());
         }

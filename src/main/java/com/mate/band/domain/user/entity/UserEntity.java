@@ -1,5 +1,6 @@
 package com.mate.band.domain.user.entity;
 
+import com.mate.band.domain.band.entity.BandApplyInfoEntity;
 import com.mate.band.domain.band.entity.BandEntity;
 import com.mate.band.domain.band.entity.BandMemberEntity;
 import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
@@ -96,6 +97,12 @@ public class UserEntity extends BaseTimeEntity implements Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<BandMemberEntity> positionInBands = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<BandApplyInfoEntity> bandApplyInfos = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserInviteInfoEntity> userInviteInfos = new ArrayList<>();
+
     public void registryUser(RegisterUserProfileRequestDTO registerProfile) {
         this.role = Role.USER;
         this.nickname = registerProfile.nickName();
@@ -107,6 +114,10 @@ public class UserEntity extends BaseTimeEntity implements Serializable {
         this.effectors = String.join(",", registerProfile.effectors());
         this.introduction = registerProfile.introduction();
         this.exposeYn = registerProfile.exposeYn();
+    }
+
+    public void updateRole(Role role) {
+        this.role = role;
     }
 
 }

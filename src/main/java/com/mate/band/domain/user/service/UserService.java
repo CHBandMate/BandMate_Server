@@ -1,5 +1,8 @@
 package com.mate.band.domain.user.service;
 
+import com.mate.band.domain.band.entity.BandEntity;
+import com.mate.band.domain.band.entity.BandMemberEntity;
+import com.mate.band.domain.band.repository.BandRepository;
 import com.mate.band.domain.metadata.constants.MappingType;
 import com.mate.band.domain.metadata.constants.MusicGenre;
 import com.mate.band.domain.metadata.constants.Position;
@@ -11,9 +14,12 @@ import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.metadata.repository.*;
 import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
+import com.mate.band.domain.user.dto.UserInviteRequestDTO;
 import com.mate.band.domain.user.dto.UserProfileBandInfoDTO;
 import com.mate.band.domain.user.dto.UserProfileResponseDTO;
 import com.mate.band.domain.user.entity.UserEntity;
+import com.mate.band.domain.user.entity.UserInviteInfoEntity;
+import com.mate.band.domain.user.repository.UserInviteInfoRepository;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
 import com.mate.band.global.exception.ErrorCode;
@@ -33,10 +39,12 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BandRepository bandRepository;
     private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
+    private final UserInviteInfoRepository userInviteInfoRepository;
 
     public Optional<UserEntity> findUserByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
@@ -44,11 +52,11 @@ public class UserService {
 
     // TODO 리팩토링, 즐겨찾기 여부 추가
     @Transactional
-    public Page<UserProfileResponseDTO> getUserProfileList(String districts, String genres, String positions, Pageable pageable) {
+    public Page<UserProfileResponseDTO> getUserProfileList(UserEntity authUser, String districts, String genres, String positions, Pageable pageable) {
         List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
         List<String> genreParam = genres.equals("ALL") ? new ArrayList<>() : Arrays.stream(genres.replaceAll(" ", "").split(",")).toList();
         List<String> positionParam = positions.equals("ALL") ? new ArrayList<>() : Arrays.stream(positions.replaceAll(" ", "").split(",")).toList();
-        Page<UserEntity> userList = userRepository.findUserList(districtParam, genreParam, positionParam, pageable);
+        Page<UserEntity> userList = userRepository.findUserList(authUser, districtParam, genreParam, positionParam, pageable);
 
         return userList.map(user -> {
             // 음악 장르 데이터
@@ -176,5 +184,27 @@ public class UserService {
                 .build();
     }
 
+    public void inviteUser(UserInviteRequestDTO inviteParam) {
+        if (userInviteInfoRepository.findByBandUserId(inviteParam.bandId(), inviteParam.userId()).isPresent()) {
+            throw new BusinessException(ErrorCode.ALREADY_INVITED_USER);
+        }
+
+        BandEntity band = bandRepository.findById(inviteParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+        for (BandMemberEntity member : band.getBandMembers()) {
+            if (member.getUser().getId().equals(inviteParam.userId())) {
+                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+            }
+        }
+
+        userInviteInfoRepository.save(
+                UserInviteInfoEntity.builder()
+                        .band(band)
+                        .user(userRepository.findById(inviteParam.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER)))
+                        .description(inviteParam.description())
+                        .openYn(false)
+                        .deleteYn(false)
+                        .build()
+        );
+    }
 
 }
