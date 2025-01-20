@@ -171,6 +171,15 @@ public class BandService {
     }
 
     @Transactional
+    public List<BandProfileResponseDTO> getMyBandProfiles(UserEntity user) {
+        List<BandProfileResponseDTO> myBandProfileList = new ArrayList<>();
+        for (BandEntity band : bandRepository.findByUserId(user.getId())) {
+            myBandProfileList.add(getBandProfileDetail(band.getId()));
+        }
+        return myBandProfileList;
+    }
+
+    @Transactional
     public BandProfileResponseDTO getBandProfileDetail(long bandId) {
         BandEntity band = bandRepository.findBandWithRecruitInfoById(bandId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
 

@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @Tag(name = "BandController", description = "밴드 관련 API")
 @RestController
 @RequestMapping("/band")
@@ -61,6 +63,12 @@ public class BandController {
         return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, recruitYn, pageable));
     }
 
+    @Operation(summary = "나의 밴드 프로필 조회")
+    @PostMapping("/profile/my")
+    public ApiResponse<List<BandProfileResponseDTO>> getMyBandProfiles(@AuthUser UserEntity userEntity) {
+        return ApiResponse.success(bandService.getMyBandProfiles(userEntity));
+    }
+
     @Operation(summary = "밴드 프로필 조회")
     @PostMapping("/profile/{bandId}")
     public ApiResponse<BandProfileResponseDTO> getBandProfile(@PathVariable long bandId) {
@@ -73,5 +81,7 @@ public class BandController {
         bandService.applyBand(user, bandApplyRequest);
         return ApiResponse.success();
     }
+
+    
 
 }

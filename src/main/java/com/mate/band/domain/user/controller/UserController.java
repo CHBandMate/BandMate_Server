@@ -74,6 +74,12 @@ public class UserController {
         return ApiResponse.success(userService.getUserProfileList(authUser, districts, genres, positions, pageable));
     }
 
+    @Operation(summary = "내 프로필 조회")
+    @GetMapping("/profile/my")
+    public ApiResponse<UserProfileResponseDTO> getMyProfile(@AuthUser UserEntity userEntity) {
+        return ApiResponse.success(userService.getUserProfile(userEntity.getId()));
+    }
+
     @Operation(summary = "유저 프로필 조회")
     @GetMapping("/profile/{userId}")
     public ApiResponse<UserProfileResponseDTO> getUserProfile(@PathVariable long userId) {
