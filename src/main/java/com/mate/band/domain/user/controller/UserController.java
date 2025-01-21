@@ -1,9 +1,6 @@
 package com.mate.band.domain.user.controller;
 
-import com.mate.band.domain.user.dto.FindUserResponseDTO;
-import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
-import com.mate.band.domain.user.dto.UserInviteRequestDTO;
-import com.mate.band.domain.user.dto.UserProfileResponseDTO;
+import com.mate.band.domain.user.dto.*;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.service.UserService;
 import com.mate.band.global.security.annotation.AuthUser;
@@ -19,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Optional;
 
 @Tag(name = "UserController", description = "회원 관련 API")
@@ -34,6 +32,14 @@ public class UserController {
     @PostMapping("/profile")
     public ApiResponse<?> registerProfile(@AuthUser UserEntity user, @RequestBody RegisterUserProfileRequestDTO profileRequest) {
         userService.registerUserProfile(user, profileRequest);
+        return ApiResponse.success();
+    }
+
+    // TODO SNS 정보 저장 추가
+    @Operation(summary = "개인 프로필 수정")
+    @PutMapping("/profile")
+    public ApiResponse<?> editProfile(@AuthUser UserEntity user, @RequestBody RegisterUserProfileRequestDTO profileRequest) {
+        userService.editProfile(user, profileRequest);
         return ApiResponse.success();
     }
 
@@ -91,6 +97,12 @@ public class UserController {
     public ApiResponse<?> inviteUser(@RequestBody UserInviteRequestDTO inviteRequest) {
         userService.inviteUser(inviteRequest);
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "초대 받은 내역 조회")
+    @GetMapping("/invite")
+    public ApiResponse<List<UserInvitedInfoResponseDTO>> getInvitedInfo(@AuthUser UserEntity user) {
+        return ApiResponse.success(userService.getInvitedInfo(user));
     }
 
 }

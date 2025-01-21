@@ -1,6 +1,7 @@
 package com.mate.band.domain.band.entity;
 
 
+import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
 import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
@@ -61,6 +62,7 @@ public class BandEntity extends BaseTimeEntity {
     private List<BandMemberEntity> bandMembers = new ArrayList<>();
 
     @OneToOne(mappedBy = "band")
+    @Setter
     private BandRecruitInfoEntity bandRecruitInfoEntity;
 
     @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -68,5 +70,12 @@ public class BandEntity extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInviteInfoEntity> userInviteInfos = new ArrayList<>();
+
+    public void updateBand(RegisterBandProfileRequestDTO profileParam) {
+        this.bandName = profileParam.bandName();
+        this.introduction = profileParam.introduction();
+        this.recruitYn = profileParam.recruitYn();
+        this.exposeYn = profileParam.exposeYn();
+    }
 
 }

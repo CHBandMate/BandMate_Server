@@ -13,10 +13,7 @@ import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.metadata.repository.*;
-import com.mate.band.domain.user.dto.RegisterUserProfileRequestDTO;
-import com.mate.band.domain.user.dto.UserInviteRequestDTO;
-import com.mate.band.domain.user.dto.UserProfileBandInfoDTO;
-import com.mate.band.domain.user.dto.UserProfileResponseDTO;
+import com.mate.band.domain.user.dto.*;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.entity.UserInviteInfoEntity;
 import com.mate.band.domain.user.repository.UserInviteInfoRepository;
@@ -102,7 +99,7 @@ public class UserService {
         MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
         MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
         List<DistrictEntity> districts = verifyDistrict(profileParam.district());
-        userEntity.registryUser(profileParam);
+        userEntity.updateUser(profileParam);
 
         List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
                 PositionMappingEntity.builder()
@@ -129,6 +126,45 @@ public class UserService {
         musicGenreMappingRepository.saveAll(musicGenreMappingEntityList);
         districtMappingRepository.saveAll(districtMappingEntityList);
     }
+
+    @Transactional
+    public void editProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
+
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
+        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
+        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
+
+        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .district(district)
+                        .build()).toList();
+
+        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
+                PositionMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .position(Position.valueOf(position))
+                        .build()).toList();
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
+
+        userEntity.getDistricts().clear();
+        userEntity.getPositions().clear();
+        userEntity.getMusicGenres().clear();
+        userEntity.getDistricts().addAll(districtMappingEntityList);
+        userEntity.getPositions().addAll(positionMappingEntityList);
+        userEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
+        userEntity.updateUser(profileParam);
+    }
+
 
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {
         List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
@@ -205,6 +241,19 @@ public class UserService {
                         .deleteYn(false)
                         .build()
         );
+    }
+
+    public List<UserInvitedInfoResponseDTO> getInvitedInfo(UserEntity user) {
+        List<UserInviteInfoEntity> userInviteInfoEntityList = userInviteInfoRepository.findByUserId(user.getId());
+        return userInviteInfoEntityList.stream().map(inviteInfo -> {
+            BandEntity band = inviteInfo.getBand();
+            return UserInvitedInfoResponseDTO.builder()
+                    .bandId(band.getId())
+                    .bandName(band.getBandName())
+                    .profileImageUrl(band.getProfileImageUrl())
+                    .openYn(inviteInfo.isOpenYn())
+                    .build();
+        }).toList();
     }
 
 }

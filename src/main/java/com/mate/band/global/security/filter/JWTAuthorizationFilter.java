@@ -31,7 +31,7 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
         String headerToken = request.getHeader(Auth.ACCESS_HEADER.getValue());
-        if (isPermittedURI(request.getRequestURI()) && headerToken == null) {
+        if (isPermittedURI(request) && headerToken == null) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -57,7 +57,14 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
-    private boolean isPermittedURI(String requestURI) {
+    private boolean isPermittedURI(HttpServletRequest request) {
+        String requestURI = request.getRequestURI();
+        String method = request.getMethod();
+        if ((requestURI.equals("/band/profile") || requestURI.equals("/user/profile"))
+                && (method.equals("POST") || method.equals("PUT"))) {
+            return false;
+        }
+
         return Arrays.stream(PERMITTED_URI)
                 .anyMatch(permitted -> {
                 String replace = permitted.replace("*", "");
