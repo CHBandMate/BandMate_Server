@@ -22,9 +22,11 @@ public class BandRecruitInfoEntity extends BaseTimeEntity {
     private BandEntity band;
 
     @Column(name = "title")
+    @Setter
     private String title;
 
     @Column(name = "recruitDescription", columnDefinition = "TEXT")
+    @Setter
     private String description;
 
 }

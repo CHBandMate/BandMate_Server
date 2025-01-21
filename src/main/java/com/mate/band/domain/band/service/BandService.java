@@ -128,6 +128,66 @@ public class BandService {
         return bandRepository.findByBandName(bandName).isPresent();
     }
 
+    @Transactional
+    public void editBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
+        BandEntity bandEntity = bandRepository.findById(profileParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+        bandEntity.updateBand(profileParam);
+
+        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
+        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
+
+        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .district(district)
+                        .build()).toList();
+
+
+        bandEntity.getMusicGenres().clear();
+        bandEntity.getDistricts().clear();
+        bandEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
+        bandEntity.getDistricts().addAll(districtMappingEntityList);
+        bandEntity.getBandMembers().clear();
+
+        List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
+        for (RegisterBandMemberDTO bandMember : profileParam.bandMember()) {
+            UserEntity member;
+            if (bandMember.userId() == bandEntity.getUser().getId()) {    // 나 자신 일때
+                member = bandEntity.getUser();
+            } else {
+                member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
+            }
+            bandMemberEntityList.add(BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build());
+        }
+        bandEntity.getBandMembers().addAll(bandMemberEntityList);
+
+        if (profileParam.recruitYn()) {
+            // 모집 포지션
+            MetadataEnumRepository.verifyMetadataKey(profileParam.recruitPosition(), Position.class);
+            List<PositionMappingEntity> positionMappingEntityList = profileParam.recruitPosition().stream().map(position ->
+                    PositionMappingEntity.builder()
+                            .type(MappingType.BAND)
+                            .band(bandEntity)
+                            .position(Position.valueOf(position))
+                            .build()).toList();
+            bandEntity.getRecruitingPositions().clear();
+            bandEntity.getRecruitingPositions().addAll(positionMappingEntityList);
+
+            // 모집 내용
+            BandRecruitInfoEntity bandRecruitInfoEntity = bandEntity.getBandRecruitInfoEntity();
+            bandRecruitInfoEntity.setTitle(profileParam.recruitTitle());
+            bandRecruitInfoEntity.setDescription(profileParam.recruitDescription());
+        }
+    }
+
     // TODO 리팩토링, 즐겨찾기 여부 추가
     @Transactional
     public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, boolean recruitYn, Pageable pageable) {
@@ -240,7 +300,7 @@ public class BandService {
     public void applyBand(UserEntity user, BandApplyRequestDTO bandApplyRequest) {
 
         // 이미 지원한 밴드
-        if (bandApplyInfoRepository.findByUserId(user.getId()).isPresent()) {
+        if (bandApplyInfoRepository.findByBandUserId(bandApplyRequest.bandId(), user.getId()).isPresent()) {
             throw new BusinessException(ErrorCode.ALREADY_APPLIED_BAND);
         }
 
@@ -259,6 +319,33 @@ public class BandService {
         }
 
         bandApplyInfoRepository.save(BandApplyInfoEntity.builder().band(band).user(user).description(bandApplyRequest.applyDescription()).build());
+    }
+
+    public List<BandApplyCurrentInfoResponseDTO> getApplyCurrentInfo(UserEntity user) {
+        List<BandApplyInfoEntity> bandApplyInfoEntity = bandApplyInfoRepository.findByUserId(user.getId());
+        return bandApplyInfoEntity.stream().map(applyInfo -> {
+            BandEntity band = applyInfo.getBand();
+            return BandApplyCurrentInfoResponseDTO.builder()
+                    .bandId(band.getId())
+                    .bandName(band.getBandName())
+                    .profileImageUrl(band.getProfileImageUrl())
+                    .openYn(applyInfo.isOpenYn())
+                    .build();
+        }).toList();
+    }
+
+    public List<BandApplicantResponseDTO> getApplicantInfo(long bandId) {
+        List<BandApplyInfoEntity> applyInfoList = bandApplyInfoRepository.findUserByBandId(bandId);
+        return applyInfoList.stream().map(apply -> {
+            UserEntity user = apply.getUser();
+            return BandApplicantResponseDTO.builder()
+                    .userId(user.getId())
+                    .profileImageUrl(user.getProfileImageUrl())
+                    .nickname(user.getNickname())
+                    .description(apply.getDescription())
+                    .openYn(apply.isOpenYn())
+                    .build();
+        }).toList();
     }
 
 }

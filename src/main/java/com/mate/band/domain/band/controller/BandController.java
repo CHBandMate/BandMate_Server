@@ -1,9 +1,6 @@
 package com.mate.band.domain.band.controller;
 
-import com.mate.band.domain.band.dto.BandApplyRequestDTO;
-import com.mate.band.domain.band.dto.BandProfileResponseDTO;
-import com.mate.band.domain.band.dto.BandRecruitInfoResponseDTO;
-import com.mate.band.domain.band.dto.RegisterBandProfileRequestDTO;
+import com.mate.band.domain.band.dto.*;
 import com.mate.band.domain.band.service.BandService;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.global.security.annotation.AuthUser;
@@ -63,6 +60,13 @@ public class BandController {
         return ApiResponse.success(bandService.getBandRecruitInfoList(districts, genres, positions, recruitYn, pageable));
     }
 
+    @Operation(summary = "밴드 프로필 수정")
+    @PutMapping("/profile")
+    public ApiResponse<?> editBandProfile(@AuthUser UserEntity user, @RequestBody RegisterBandProfileRequestDTO profileRequest) {
+        bandService.editBandProfile(user, profileRequest);
+        return ApiResponse.success();
+    }
+
     @Operation(summary = "나의 밴드 프로필 조회")
     @PostMapping("/profile/my")
     public ApiResponse<List<BandProfileResponseDTO>> getMyBandProfiles(@AuthUser UserEntity userEntity) {
@@ -82,6 +86,17 @@ public class BandController {
         return ApiResponse.success();
     }
 
-    
+    @Operation(summary = "밴드 가입 신청 현황")
+    @GetMapping("/apply")
+    public ApiResponse<List<BandApplyCurrentInfoResponseDTO>> getApplyCurrentInfo(@AuthUser UserEntity user) {
+        return ApiResponse.success(bandService.getApplyCurrentInfo(user));
+    }
+
+    // TODO 본인 밴드 여부 검증 로직 필요
+    @Operation(summary = "나의 밴드 가입 지원자 현황")
+    @GetMapping("/applicant/{bandId}")
+    public ApiResponse<List<BandApplicantResponseDTO>> getApplicantInfo(@PathVariable long bandId) {
+        return ApiResponse.success(bandService.getApplicantInfo(bandId));
+    }
 
 }

@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.List;
 
 public record RegisterBandProfileRequestDTO(
+        @Schema(description = "밴드 id(밴드 프로필 수정에만 필요)", example = "3")
+        long bandId,
+
         @Schema(description = "밴드명", example = "베짱이와 쩌리들")
         String bandName,
 

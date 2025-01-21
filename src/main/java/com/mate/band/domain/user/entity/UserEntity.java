@@ -103,17 +103,17 @@ public class UserEntity extends BaseTimeEntity implements Serializable {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInviteInfoEntity> userInviteInfos = new ArrayList<>();
 
-    public void registryUser(RegisterUserProfileRequestDTO registerProfile) {
+    public void updateUser(RegisterUserProfileRequestDTO profileParam) {
         this.role = Role.USER;
-        this.nickname = registerProfile.nickName();
+        this.nickname = profileParam.nickName();
 //        this.profileImageUrl = registerProfile.profileImageUrl();
-        this.email = registerProfile.email();
-        this.kakaoId = registerProfile.kakaoId();
+        this.email = profileParam.email();
+        this.kakaoId = profileParam.kakaoId();
 //        this.phoneNumber = registerProfile.phoneNumber();
-        this.instruments = String.join(",", registerProfile.instruments());
-        this.effectors = String.join(",", registerProfile.effectors());
-        this.introduction = registerProfile.introduction();
-        this.exposeYn = registerProfile.exposeYn();
+        this.instruments = String.join(",", profileParam.instruments());
+        this.effectors = String.join(",", profileParam.effectors());
+        this.introduction = profileParam.introduction();
+        this.exposeYn = profileParam.exposeYn();
     }
 
     public void updateRole(Role role) {
