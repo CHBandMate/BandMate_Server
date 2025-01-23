@@ -25,6 +25,12 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RedisService redisService;
 
+    /**
+     * Issue token.
+     *
+     * @param response     the response
+     * @param tokenRequest the token request
+     */
     public void issueToken(HttpServletResponse response, TokenRequestDTO tokenRequest) {
         String authTempCode = tokenRequest.authTempCode();
 
@@ -44,7 +50,7 @@ public class AuthService {
         long userId = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
         String refreshTokenInRedis = redisService.getRefreshToken(userId);
 
-        if (refreshTokenInRedis.isEmpty()) {
+        if (refreshTokenInRedis == null) {
             throw new BusinessException(ErrorCode.TOKEN_NUll);
         }
 
@@ -78,5 +84,9 @@ public class AuthService {
 
         Authentication authentication = JWTUtils.getAuthentication(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
+    }
+
+    public void logout(UserEntity user) {
+        redisService.deleteRefreshToken(user.getId());
     }
 }

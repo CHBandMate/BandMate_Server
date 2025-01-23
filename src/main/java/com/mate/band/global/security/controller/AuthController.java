@@ -16,6 +16,12 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * 인증 관련 Controller
+ * @author : 최성민
+ * @since : 2024-01-02
+ * @version : 1.0
+ */
 @Tag(name = "AuthController", description = "인증 관련 API")
 @RestController
 @RequestMapping("/auth")
@@ -43,10 +49,10 @@ public class AuthController {
         return ApiResponse.success();
     }
 
-    @Operation(hidden = true)
+    @Operation(summary = "로그아웃",
+            description = "DB에 저장 된 RefreshToken 삭제")
     @GetMapping("/logout")
     public void logout(@AuthUser UserEntity user) {
-        System.out.println(user.getId());
-        System.out.println(user.getRole().getKey());
+        authService.logout(user);
     }
 }

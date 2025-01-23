@@ -6,6 +6,12 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.util.List;
 
+/**
+ * 밴드 프로필 등록 RequestDTO
+ * @author : 최성민
+ * @since : 2025-01-09
+ * @version : 1.0
+ */
 public record RegisterBandProfileRequestDTO(
         @Schema(description = "밴드 id(밴드 프로필 수정에만 필요)", example = "3")
         long bandId,

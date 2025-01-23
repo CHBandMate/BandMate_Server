@@ -19,6 +19,12 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * 사용자 관련 Controller
+ * @author : 최성민
+ * @since : 2024-12-30
+ * @version : 1.0
+ */
 @Tag(name = "UserController", description = "회원 관련 API")
 @RestController
 @RequestMapping("/user")

@@ -14,6 +14,12 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 밴드 Entity
+ * @author : 최성민
+ * @since : 2025-01-09
+ * @version : 1.0
+ */
 @Getter
 @Entity
 @Table(name = "band")
@@ -71,6 +77,10 @@ public class BandEntity extends BaseTimeEntity {
     @OneToMany(mappedBy = "band", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserInviteInfoEntity> userInviteInfos = new ArrayList<>();
 
+    /**
+     * 밴드 프로필 수정
+     * @param profileParam 프로필 수정 데이터
+     */
     public void updateBand(RegisterBandProfileRequestDTO profileParam) {
         this.bandName = profileParam.bandName();
         this.introduction = profileParam.introduction();

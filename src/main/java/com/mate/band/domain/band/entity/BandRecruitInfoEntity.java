@@ -4,6 +4,12 @@ import com.mate.band.global.entity.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 밴드 구인 정보 Entity
+ * @author : 최성민
+ * @since : 2025-01-09
+ * @version : 1.0
+ */
 @Getter
 @Entity
 @Table(name = "band_recruit_info")

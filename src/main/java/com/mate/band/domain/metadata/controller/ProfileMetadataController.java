@@ -12,7 +12,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-
+/**
+ * 프로필에 필요한 데이터 관련 Controller
+ * @author : 최성민
+ * @since : 2024-01-06
+ * @version : 1.0
+ */
 @Tag(name = "ProfileMetadataController", description = "프로필 등록 메타데이터 API")
 @RestController
 @RequestMapping("/profile/metadata")
