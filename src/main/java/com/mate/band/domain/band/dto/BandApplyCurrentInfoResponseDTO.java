@@ -13,7 +13,10 @@ import lombok.Builder;
 public record BandApplyCurrentInfoResponseDTO(
         @Schema(description = "밴드 id", example = "1")
         long bandId,
-//        String profileImageUrl,
+
+        @Schema(description = "프로필 이미지 url")
+        String profileImageUrl,
+
         @Schema(description = "밴드명", example = "베짱이와 쩌리들")
         String bandName,
 

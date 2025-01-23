@@ -13,7 +13,10 @@ import lombok.Builder;
 public record BandApplicantResponseDTO(
         @Schema(description = "유저 id", example = "3")
         long userId,
-//        String profileImageUrl,
+
+        @Schema(description = "프로필 이미지 url")
+        String profileImageUrl,
+
         @Schema(description = "닉네임", example = "베짱이")
         String nickname,
 

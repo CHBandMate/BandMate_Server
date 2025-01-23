@@ -406,7 +406,7 @@ public class BandService {
                     .userId(applyUser.getId())
                     .profileImageUrl(applyUser.getProfileImageUrl())
                     .nickname(applyUser.getNickname())
-                    .description(apply.getDescription())
+                    .applyDescription(apply.getDescription())
                     .openYn(apply.isOpenYn())
                     .build();
         }).toList();
