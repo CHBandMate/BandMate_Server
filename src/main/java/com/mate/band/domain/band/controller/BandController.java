@@ -47,6 +47,13 @@ public class BandController {
         return ApiResponse.success();
     }
 
+    @Operation(summary = "밴드명 중복 확인",
+            description = "<b>true : 사용 가능<br/>false : 사용 불가능</b>")
+    @GetMapping("/profile/check-band-name")
+    public ApiResponse<Boolean> checkBandName(@RequestParam String bandName) {
+        return ApiResponse.success(bandService.checkBandName(bandName));
+    }
+
     // TODO 페이징객체 페이지 0으로 되는거 수정
     // TODO FetchType 어떻게 작동 되는지 확인
     @Operation(summary = "메인 화면 멤버 모집 게시글 조회",
@@ -84,13 +91,6 @@ public class BandController {
         return ApiResponse.success(bandService.getBandProfileDetail(bandId));
     }
 
-    @Operation(summary = "밴드 프로필 수정")
-    @PutMapping("/profile")
-    public ApiResponse<?> editBandProfile(@AuthUser UserEntity user, @RequestBody RegisterBandProfileRequestDTO profileRequest) {
-        bandService.editBandProfile(user, profileRequest);
-        return ApiResponse.success();
-    }
-
     @Operation(summary = "밴드 가입 신청 현황",
             description = "내가 지원한 밴드 내역을 조회 합니다.")
     @GetMapping("/apply")
@@ -105,11 +105,11 @@ public class BandController {
         return ApiResponse.success(bandService.getApplicantInfo(user, bandId));
     }
 
-    @Operation(summary = "밴드명 중복 확인",
-            description = "<b>true : 사용 가능<br/>false : 사용 불가능</b>")
-    @GetMapping("/profile/check-band-name")
-    public ApiResponse<Boolean> checkBandName(@RequestParam String bandName) {
-        return ApiResponse.success(bandService.checkBandName(bandName));
+    @Operation(summary = "밴드 프로필 수정")
+    @PutMapping("/profile")
+    public ApiResponse<?> editBandProfile(@AuthUser UserEntity user, @RequestBody RegisterBandProfileRequestDTO profileRequest) {
+        bandService.editBandProfile(user, profileRequest);
+        return ApiResponse.success();
     }
 
 }

@@ -20,6 +20,12 @@ import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.*;
 
+/**
+ * JWT 관련 유틸 클래스
+ * @author : 최성민
+ * @since : 2024-12-22
+ * @version : 1.0
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -58,9 +64,9 @@ public class JWTUtils {
 
     /******************************************** JTW 생성 ********************************************/
     /**
-     * 사용자 정보를 기반으로 인증 된 JWT Access, Refresh 토큰을 생성하여 반환 해주는 메서드
-     * @param userEntity
-     * @return String : 토큰
+     * 사용자 정보를 기반으로 인증 된 JWT Access, Refresh 토큰을 생성하여 반환한다.
+     * @param userEntity @AuthUser
+     * @return Map - key : 토큰 종류 / value : 토큰 값
      */
     public static Map<String, String> generateAuthenticatedTokens(UserEntity userEntity) {
         Map<String, String> tokenMap = new HashMap<>();
@@ -72,9 +78,11 @@ public class JWTUtils {
     }
 
     /**
-     * 사용자 정보를 기반으로 JWT Access, Refresh 토큰을 생성하여 반환 해주는 메서드
-     * @param userEntity, tokenType, expiredTime, ACCESS_SECRET_KEY
-     * @return String : 토큰
+     * 사용자 정보를 기반으로 JWT Access, Refresh 토큰을 생성하여 반환한다.
+     * @param userEntity @AuthUser
+     * @param tokenType 토큰 종류
+     * @param expiredTime 토큰 만료 시간
+     * @return String
      */
     private static String createToken(UserEntity userEntity, String tokenType, long expiredTime) {
         JwtBuilder jwtBuilder = Jwts.builder()
@@ -87,8 +95,8 @@ public class JWTUtils {
     }
 
     /**
-     * JWT Header 값 생성
-     * @return HashMap<String, Object>
+     * JWT Header 값을 생성한다.
+     * @return HashMap
      */
     private static Map<String, Object> createHeader() {
         Map<String, Object> header = new HashMap<>();
@@ -99,9 +107,9 @@ public class JWTUtils {
     }
 
     /**
-     * JWT Claim 생성
-     * @param userEntity
-     * @return Map<String, Object>
+     * JWT Claim 생성한다.
+     * @param userEntity @AuthUser
+     * @return Map
      */
     private static Map<String, Object> createClaims(UserEntity userEntity, String tokenType) {
         Map<String, Object> claims = new HashMap<>();
@@ -113,7 +121,7 @@ public class JWTUtils {
     }
 
     /**
-     * JWT Signature 생성
+     * JWT Signature 생성한다.
      * @return Key
      */
     private static Key createSignature(String key) {
@@ -122,7 +130,7 @@ public class JWTUtils {
     }
 
     /**
-     * 토큰의 만료기간을 지정
+     * 토큰의 만료기간을 지정한다.
      * @return Calendar
      */
     private static Date createExpiration(long time) {
@@ -140,7 +148,7 @@ public class JWTUtils {
     /******************************************** 토큰 검증 ********************************************/
 
     /**
-     * Header 내에 토큰을 추출
+     * Header 내에 토큰을 추출한다.
      * @param header 헤더
      * @return String
      */
@@ -155,8 +163,9 @@ public class JWTUtils {
     }
 
     /**
-     * 유효한 토큰인지 확인
-     * @param token
+     * 유효한 토큰인지 확인한다.
+     * @param auth 토큰 종류 ENUM
+     * @param token 토큰값
      * @return boolean
      */
     public static boolean isValidToken(Auth auth, String token) {
@@ -164,8 +173,8 @@ public class JWTUtils {
     }
 
     /**
-     * 토큰을 기반으로 Authentication 생성
-     * @param token
+     * 토큰을 기반으로 Authentication 생성한다.
+     * @param token 토큰값
      * @return Authentication
      */
     public static Authentication getAuthentication(String token) {
@@ -180,8 +189,8 @@ public class JWTUtils {
     }
 
     /**
-     * 토큰 정보를 기반으로 Claims 정보를 반환
-     * @param token
+     * 토큰 정보를 기반으로 Claims 정보를 반환한다.
+     * @param token 토큰값
      * @return Claims
      */
     private static Claims getClaimsFromToken(String token) {
@@ -193,9 +202,9 @@ public class JWTUtils {
     }
 
     /**
-     * 토큰 상태 반환
-     * @param token
-     * @return TokenStatus
+     * 토큰의 상태를 반환한다.
+     * @param token 토큰값
+     * @return TokenStatus 토큰 상태 ENUM
      */
     public static TokenStatus getTokenStatus(Auth auth, String token) {
         String secretKey = Objects.equals(auth.getValue(), Auth.ACCESS_TYPE.getValue()) ? ACCESS_SECRET_KEY : REFRESH_SECRET_KEY;
@@ -214,8 +223,8 @@ public class JWTUtils {
     }
 
     /**
-     * 토큰 정보를 기반으로 비공개 Claims 정보를 반환
-     * @param token
+     * 토큰 정보를 기반으로 비공개 Claims 정보를 반환한다.
+     * @param token 토큰값
      * @return Claims
      */
     public static String getPrivateClaim(String token, Claim claim) {
@@ -224,8 +233,8 @@ public class JWTUtils {
     }
 
     /**
-     * JWT Payload의 subject 정보 반환
-     * @param token
+     * JWT Payload의 subject 정보 반환한다.
+     * @param token 토큰값
      * @return String
      */
     public static String getSubjectFromToken(Auth auth, String token) {
@@ -237,19 +246,6 @@ public class JWTUtils {
                 .getBody()
                 .getSubject();
     }
-
-    /**
-     * 만료 된 JWT Payload의 subject 정보 반환
-     * @param token
-     * @return String
-     */
-//    public static String getSubjectFromExpiredToken(String token) {
-//        try {
-//            return getSubjectFromToken(token);
-//        } catch (ExpiredJwtException e) {
-//            return e.getClaims().getSubject();
-//        }
-//    }
 
     private Key getSigningKey(String secretKey) {
         String encodedKey = encodeToBase64(secretKey);

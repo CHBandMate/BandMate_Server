@@ -5,6 +5,12 @@ import lombok.RequiredArgsConstructor;
 
 import java.util.Arrays;
 
+/**
+ * OAuth 플랫폼 관련 ENUM
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum OAuthType {

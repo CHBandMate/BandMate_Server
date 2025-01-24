@@ -2,13 +2,12 @@ package com.mate.band.global.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-// TODO ErrorCode 정리 필요
 /**
- * [API Response]
  * Error 관련 코드 정의
  * @author 최성민
  * @since 2024-12-03
  * @version 1.0
+ * TODO ErrorCode 정리 필요
  */
 @Getter
 @AllArgsConstructor

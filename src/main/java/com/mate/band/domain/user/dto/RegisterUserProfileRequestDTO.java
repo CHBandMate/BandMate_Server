@@ -6,6 +6,12 @@ import lombok.Builder;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
+/**
+ * 회원 프로필 등록 RequestDTO
+ * @author : 최성민
+ * @since : 2025-01-06
+ * @version : 1.0
+ */
 @Builder
 public record RegisterUserProfileRequestDTO(
 

@@ -7,6 +7,12 @@ import lombok.Builder;
 
 import java.util.List;
 
+/**
+ * 밴드 멤버 구인 정보 ResponseDTO
+ * @author : 최성민
+ * @since : 2025-01-12
+ * @version : 1.0
+ */
 @Builder
 public record BandRecruitInfoResponseDTO(
         @Schema(description = "밴드 id", example = "3")

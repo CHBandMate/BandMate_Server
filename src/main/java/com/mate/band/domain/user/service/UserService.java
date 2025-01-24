@@ -32,6 +32,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * @author : 최성민
+ * @since : 2024-12-30
+ * @version : 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class UserService {
@@ -43,11 +48,26 @@ public class UserService {
     private final DistrictMappingRepository districtMappingRepository;
     private final UserInviteInfoRepository userInviteInfoRepository;
 
+
+    /**
+     * 닉네임으로 회원을 검색한다.
+     * @param nickname the nickname
+     * @return the optional
+     */
     public Optional<UserEntity> findUserByNickname(String nickname) {
         return userRepository.findByNickname(nickname);
     }
 
-    // TODO 리팩토링, 즐겨찾기 여부 추가
+    /**
+     * 회원 프로필 리스트를 조회한다.
+     * @param authUser  @AuthUser
+     * @param districts 합주 지역
+     * @param genres    음악 장르
+     * @param positions 구인 포지션
+     * @param pageable  페이징 정보
+     * @return Page UserProfileResponseDTO
+     * TODO 리팩토링, 즐겨찾기 여부 추가
+     */
     @Transactional
     public Page<UserProfileResponseDTO> getUserProfileList(UserEntity authUser, String districts, String genres, String positions, Pageable pageable) {
         List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
@@ -88,7 +108,12 @@ public class UserService {
         });
     }
 
-    // TODO 리팩토링
+    /**
+     * 로그인 한 유저의 프로필을 등록한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 등록 데이터
+     * TODO 리팩토링
+     */
     @Transactional
     public void registerUserProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
@@ -127,6 +152,11 @@ public class UserService {
         districtMappingRepository.saveAll(districtMappingEntityList);
     }
 
+    /**
+     * 로그인 한 유저의 프로필을 수정한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 수정 데이터
+     */
     @Transactional
     public void editProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
 
@@ -165,7 +195,11 @@ public class UserService {
         userEntity.updateUser(profileParam);
     }
 
-
+    /**
+     * 지역 정보를 검증한다.
+     * @param districts 지역 정보
+     * @return List DistrictEntity
+     */
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {
         List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
         if (districts.size() != districtEntityList.size()) {
@@ -174,6 +208,12 @@ public class UserService {
         return districtEntityList;
     }
 
+
+    /**
+     * 특정 회원의 프로필을 조회한다.
+     * @param userId 회원Id
+     * @return UserProfileResponseDTO
+     */
     @Transactional
     public UserProfileResponseDTO getUserProfile(long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
@@ -220,6 +260,11 @@ public class UserService {
                 .build();
     }
 
+
+    /**
+     * 회원을 밴드에 초대한다.
+     * @param inviteParam 초대 정보 데이터
+     */
     public void inviteUser(UserInviteRequestDTO inviteParam) {
         if (userInviteInfoRepository.findByBandUserId(inviteParam.bandId(), inviteParam.userId()).isPresent()) {
             throw new BusinessException(ErrorCode.ALREADY_INVITED_USER);
@@ -243,6 +288,11 @@ public class UserService {
         );
     }
 
+    /**
+     * 로그인 한 유저가 밴드에 초대받은 내역을 조회한다.
+     * @param user @AuthUser
+     * @return List UserInvitedInfoResponseDTO
+     */
     public List<UserInvitedInfoResponseDTO> getInvitedInfo(UserEntity user) {
         List<UserInviteInfoEntity> userInviteInfoEntityList = userInviteInfoRepository.findByUserId(user.getId());
         return userInviteInfoEntityList.stream().map(inviteInfo -> {

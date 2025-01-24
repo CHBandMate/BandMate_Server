@@ -11,7 +11,7 @@ import lombok.Builder;
  */
 @Builder
 public record BandApplicantResponseDTO(
-        @Schema(description = "유저 id", example = "3")
+        @Schema(description = "회원Id", example = "3")
         long userId,
 
         @Schema(description = "프로필 이미지 url")

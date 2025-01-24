@@ -135,7 +135,7 @@ public class BandService {
     }
 
     /**
-     * 밴드명이 중복 되는지 확인하다.
+     * 밴드명이 중복 되는지 확인한다.
      * @param bandName 밴드명
      * @return Boolean
      */

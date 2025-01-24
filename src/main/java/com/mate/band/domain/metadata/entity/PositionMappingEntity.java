@@ -6,10 +6,15 @@ import com.mate.band.domain.metadata.constants.Position;
 import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
-/*
-* Band -> 모집 포지션
-* User -> 본인 소개 포지션
-* */
+
+/**
+ * 밴드 포지션 <-> 회원,밴드 매핑 Entity</br>
+ * Band -> 모집 포지션</br>
+ * User -> 본인 소개 포지션</br>
+ * @author : 최성민
+ * @since : 2025-01-24
+ * @version : 1.0
+ */
 @Getter
 @Entity
 @Table(name = "position_mapping")

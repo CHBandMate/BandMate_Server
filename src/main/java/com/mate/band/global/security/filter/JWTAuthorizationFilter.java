@@ -23,6 +23,12 @@ import java.util.Arrays;
 
 import static com.mate.band.global.security.config.WebSecurityConfig.PERMITTED_URI;
 
+/**
+ * 토큰 검증 관련 Filter
+ * @author : 최성민
+ * @since : 2024-12-30
+ * @version : 1.0
+ */
 @Slf4j
 @RequiredArgsConstructor
 public class JWTAuthorizationFilter extends OncePerRequestFilter {

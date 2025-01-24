@@ -14,7 +14,6 @@ import org.springframework.web.servlet.NoHandlerFoundException;
 import java.io.IOException;
 
 /**
- * [Global Exception]
  * Controller 내에서 발생하는 Exception 관리
  * @author 최성민
  * @since 2024-12-03

@@ -3,6 +3,12 @@ package com.mate.band.global.security.constants;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+/**
+ * 회원 등급 관리 ENUM
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Getter
 @RequiredArgsConstructor
 public enum Role {

@@ -7,6 +7,12 @@ import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 지역 <-> 회원,밴드 매핑 Entity
+ * @author : 최성민
+ * @since : 2025-01-24
+ * @version : 1.0
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "district_mapping")

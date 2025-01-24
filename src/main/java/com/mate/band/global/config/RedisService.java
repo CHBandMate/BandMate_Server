@@ -8,6 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * @author : 최성민
+ * @since : 2025-01-01
+ * @version : 1.0
+ */
 @Service
 public class RedisService {
 
@@ -26,6 +31,11 @@ public class RedisService {
         this.redisTemplate = redisTemplate;
     }
 
+    /**
+     * OAuth 인증 후 JWT 발급을 위한 임시 코드를 저장한다.
+     * @param userId 회원Id
+     * @return String
+     */
     public String saveAuthTempCode(long userId) {
         String authTempCode = UUID.randomUUID().toString();
         String key = RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode);
@@ -33,14 +43,28 @@ public class RedisService {
         return authTempCode;
     }
 
+    /**
+     * Redis에 저장 된 JWT 발급용 임시 코드를 검증한다.
+     * @param authTempCode 임시 코드
+     * @return boolean
+     */
     public boolean validateAuthTempCode(String authTempCode) {
         return redisTemplate.opsForValue().get(RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode)) != null;
     }
 
+    /**
+     * Redis에 저장 된 JWT 발급용 임시 코드를 제거한다.
+     * @param authTempCode 임시 코드
+     */
     public void deleteAuthTempCode(String authTempCode) {
         redisTemplate.delete(RedisKey.generateKey(RedisKey.AUTH_TEMP_CODE, authTempCode));
     }
 
+    /**
+     * Redis에 RefreshToken을 저장한다.
+     * @param userId 회원Id
+     * @param refreshToken Refresh 토큰
+     */
     public void saveRefreshToken(long userId, String refreshToken) {
         TimeUnit expiredType;
         switch (EXPIRED_TYPE) {
@@ -54,11 +78,20 @@ public class RedisService {
         redisTemplate.opsForValue().set(key, refreshToken, REFRESH_EXPIRED_TIME, expiredType);
     }
 
+    /**
+     * Redis에 저장 된 RefreshToken을 조회한다.
+     * @param userId 회원Id
+     * @return String
+     */
     public String getRefreshToken(long userId) {
         String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userId));
         return (String) redisTemplate.opsForValue().get(key);
     }
 
+    /**
+     * Redis에 저장 된 RefreshToken을 제거한다.
+     * @param userId 회원Id
+     */
     public void deleteRefreshToken(long userId) {
         String key = RedisKey.generateKey(RedisKey.REFRESH_TOKEN, String.valueOf(userId));
         redisTemplate.delete(key);

@@ -19,6 +19,13 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Map;
 import java.util.Optional;
 
+/**
+ * OAuth2 로그인에 성공하면 사용자 정보를 가져와 처리</br>
+ * (OAuth2 인증 성공 -> Authentication 객체 생성 전 단계)
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {

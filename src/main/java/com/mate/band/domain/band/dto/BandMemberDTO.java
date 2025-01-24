@@ -11,7 +11,7 @@ import lombok.Builder;
  */
 @Builder
 public record BandMemberDTO(
-        @Schema(description = "유저 id", example = "1")
+        @Schema(description = "회원Id", example = "1")
         long userId,
 
         @Schema(description = "닉네임", example = "베짱이")

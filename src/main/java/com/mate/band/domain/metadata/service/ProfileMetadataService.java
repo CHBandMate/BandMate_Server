@@ -15,12 +15,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
+/**
+ * @author : 최성민
+ * @since : 2025-01-06
+ * @version : 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class ProfileMetadataService {
 
     private final RegionRepository regionRepository;
 
+
+    /**
+     * ENUM에 등록 된 음악 장르, 밴드 포지션, SNS 플랫폼 항목을 조회합니다.
+     * @return ProfileMetaDataResponseDTO
+     */
     public ProfileMetaDataResponseDTO getProfileMetadata() {
         List<ProfileMetaDataDTO> musicGenreList = getProfileMetaDataDTOList(MusicGenre.class);
         List<ProfileMetaDataDTO> positionList = getProfileMetaDataDTOList(Position.class);
@@ -33,6 +43,11 @@ public class ProfileMetadataService {
                 .build();
     }
 
+
+    /**
+     * DB에 저장 된 지역 항목을 조회합니다.
+     * @return List RegionResponseDTO
+     */
     public List<RegionResponseDTO> getDistrictData() {
         List<RegionDataDTO> regions = regionRepository.getRegionsWithDistricts();
 
@@ -64,12 +79,16 @@ public class ProfileMetadataService {
         return new ArrayList<>(regionResponseMap.values());
     }
 
+    /**
+     * ENUM 클래스를 List 형식으로 변환합니다.
+     * @return List ProfileMetaDataDTO
+     */
     private List<ProfileMetaDataDTO> getProfileMetaDataDTOList(Class<? extends EnumModel> profileMetadataEnum) {
         return Stream.of(profileMetadataEnum.getEnumConstants())
-                .map(musicGenre ->
+                .map(metadata ->
                         ProfileMetaDataDTO.builder()
-                                .key(musicGenre.getkey())
-                                .value(musicGenre.getValue())
+                                .key(metadata.getkey())
+                                .value(metadata.getValue())
                                 .build()
                 ).toList();
     }
