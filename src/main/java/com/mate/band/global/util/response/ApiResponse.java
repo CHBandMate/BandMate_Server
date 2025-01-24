@@ -4,7 +4,6 @@ import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
 /**
- * [API Response]
  * API 응답 공통 포맷 정의
  * @author 최성민
  * @since 2024-12-03
@@ -27,9 +26,8 @@ public class ApiResponse<T> {
     }
 
     /**
-     * [Success Response]
      * API response data 값이 존재할 때 호출
-     * @param data
+     * @param data Response 데이터
      * @return ApiResponse<T>
      */
     public static <T> ApiResponse<T> success(T data) {
@@ -37,9 +35,9 @@ public class ApiResponse<T> {
     }
 
     /**
-     * [Success Response]
      * API response data 값이 존재할 때 호출
-     * @param statusCode, data
+     * @param statusCode 상태 코드
+     * @param data Response 데이터
      * @return ApiResponse<T>
      */
     public static <T> ApiResponse<T> success(int statusCode, T data) {
@@ -47,9 +45,9 @@ public class ApiResponse<T> {
     }
 
     /**
-     * [Success Response]
      * API response data 값이 존재할 때 호출
-     * @param httpStatus, data
+     * @param httpStatus HttpStatus
+     * @param data Response 데이터
      * @return ApiResponse<T>
      */
     public static <T> ApiResponse<T> success(HttpStatus httpStatus, T data) {
@@ -57,7 +55,6 @@ public class ApiResponse<T> {
     }
 
     /**
-     * [Success Response]
      * API response data 값이 필요 없을 때 호출
      * @return ApiResponse<T>
      */
@@ -66,10 +63,10 @@ public class ApiResponse<T> {
     }
 
     /**
-     * [Fail Response]
      * API 응답에 실패 했을 때 호출
-     * @param statusCode, errorData
-     * @return ApiResponse<errorData>
+     * @param statusCode 상태 코드
+     * @param errorData Response 에러 데이터
+     * @return ApiResponse errorData
      */
     public static ApiResponse<ErrorData> fail(int statusCode, ErrorData errorData) {
         return new ApiResponse<>(FAIL_STATUS, statusCode, errorData);
@@ -77,10 +74,10 @@ public class ApiResponse<T> {
 
 
     /**
-     * [Fail Response]
      * API 응답에 실패 했을 때 호출
-     * @param httpStatus, errorData
-     * @return ApiResponse<errorData>
+     * @param httpStatus HttpStatus
+     * @param errorData Response 에러 데이터
+     * @return ApiResponse errorData
      */
     public static ApiResponse<ErrorData> fail(HttpStatus httpStatus, ErrorData errorData) {
         return new ApiResponse<>(FAIL_STATUS, httpStatus.value(), errorData);

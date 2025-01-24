@@ -21,6 +21,7 @@ import java.util.List;
 
 /**
  * Swagger 설정
+ * @author : 최성민
  * @since 2024-12-31
  * @version 1.0
  */

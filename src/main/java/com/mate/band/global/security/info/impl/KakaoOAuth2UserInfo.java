@@ -6,6 +6,12 @@ import lombok.AllArgsConstructor;
 
 import java.util.Map;
 
+/**
+ * Kakao OAuth2 회원 객체
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @AllArgsConstructor
 public class KakaoOAuth2UserInfo implements OAuth2UserInfo {
     private final Map<String, Object> attributes;

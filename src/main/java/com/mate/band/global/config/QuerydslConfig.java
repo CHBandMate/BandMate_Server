@@ -6,6 +6,12 @@ import jakarta.persistence.PersistenceContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * JPA Querydsl 설정
+ * @author : 최성민
+ * @since : 2025-01-15
+ * @version : 1.0
+ */
 @Configuration
 public class QuerydslConfig {
 

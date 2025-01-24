@@ -6,6 +6,12 @@ import lombok.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 지역 정보 Entity
+ * @author : 최성민
+ * @since : 2025-01-05
+ * @version : 1.0
+ */
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "districts")

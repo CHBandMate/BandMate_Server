@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * user 테이블 매핑 객체
+ * 유저 Entity
  * @author : sungmin
  * @fileName : UserEntity
  * @since : 2024/12/17

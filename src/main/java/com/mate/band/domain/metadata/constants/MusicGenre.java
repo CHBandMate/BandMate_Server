@@ -6,6 +6,12 @@ import lombok.AllArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 음악 장르 ENUM
+ * @author : 최성민
+ * @since : 2025-01-08
+ * @version : 1.0
+ */
 @AllArgsConstructor
 public enum MusicGenre implements EnumModel {
     POP("POP", "팝"),

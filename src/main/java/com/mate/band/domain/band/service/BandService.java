@@ -35,6 +35,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * @author : 최성민
+ * @since : 2025-01-09
+ * @version : 1.0
+ */
 @Service
 @RequiredArgsConstructor
 public class BandService {
@@ -49,6 +54,11 @@ public class BandService {
     private final DistrictMappingRepository districtMappingRepository;
     private final BandApplyInfoRepository bandApplyInfoRepository;
 
+    /**
+     * 밴드 프로필을 등록한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 등록 데이터
+     */
     @Transactional // TODO 중간에 에러 났을때 id 값은 increment 돼있는거 왜 그런지 확인 필요
     public void registerBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
@@ -124,10 +134,20 @@ public class BandService {
         user.updateRole(Role.LEADER);
     }
 
+    /**
+     * 밴드명이 중복 되는지 확인한다.
+     * @param bandName 밴드명
+     * @return Boolean
+     */
     public Boolean checkBandName(String bandName) {
-        return bandRepository.findByBandName(bandName).isPresent();
+        return bandRepository.findByBandName(bandName).isEmpty();
     }
 
+    /**
+     * 밴드 프로필을 수정한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 수정 데이터
+     */
     @Transactional
     public void editBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
         BandEntity bandEntity = bandRepository.findById(profileParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
@@ -188,7 +208,16 @@ public class BandService {
         }
     }
 
-    // TODO 리팩토링, 즐겨찾기 여부 추가
+    /**
+     * 밴드 멤버 구인 게시글을 조회한다.
+     * @param districts 합주 지역
+     * @param genres    음악 장르
+     * @param positions 구인 포지션
+     * @param recruitYn 구인 여부
+     * @param pageable  페이징 정보
+     * @return Page BandRecruitInfoResponseDTO
+     * @TODO 리팩토링, 즐겨찾기 여부 추가
+     */
     @Transactional
     public Page<BandRecruitInfoResponseDTO> getBandRecruitInfoList(String districts, String genres, String positions, boolean recruitYn, Pageable pageable) {
         List<Long> districtParam = districts.equals("ALL") ? new ArrayList<>() : Arrays.stream(districts.replaceAll(" ", "").split(",")).map(Long::valueOf).toList();
@@ -230,6 +259,11 @@ public class BandService {
         });
     }
 
+    /**
+     * 나의 밴드 프로필을 조회한다.
+     * @param user @AuthUser
+     * @return List BandProfileResponseDTO
+     */
     @Transactional
     public List<BandProfileResponseDTO> getMyBandProfiles(UserEntity user) {
         List<BandProfileResponseDTO> myBandProfileList = new ArrayList<>();
@@ -239,6 +273,11 @@ public class BandService {
         return myBandProfileList;
     }
 
+    /**
+     * 밴드 상세 프로필을 조회한다.
+     * @param bandId 밴드Id
+     * @return BandProfileResponseDTO
+     */
     @Transactional
     public BandProfileResponseDTO getBandProfileDetail(long bandId) {
         BandEntity band = bandRepository.findBandWithRecruitInfoById(bandId).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
@@ -288,6 +327,12 @@ public class BandService {
                 .build();
     }
 
+    /**
+     * 지역 데이터를 검증한다.
+     * @param districts 지역 정보
+     * @return List DistrictEntity
+     * @throws BusinessException 존재하지 않는 지역 코드
+     */
     private List<DistrictEntity> verifyDistrict(List<Long> districts) {
         List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
         if (districts.size() != districtEntityList.size()) {
@@ -296,6 +341,11 @@ public class BandService {
         return districtEntityList;
     }
 
+    /**
+     * 현재 사용자가 밴드에 지원한다.
+     * @param user             @AuthUser
+     * @param bandApplyRequest 밴드 지원 내용
+     */
     @Transactional
     public void applyBand(UserEntity user, BandApplyRequestDTO bandApplyRequest) {
 
@@ -321,6 +371,11 @@ public class BandService {
         bandApplyInfoRepository.save(BandApplyInfoEntity.builder().band(band).user(user).description(bandApplyRequest.applyDescription()).build());
     }
 
+    /**
+     * 나의 밴드 지원 현황을 조회한다.
+     * @param user @AuthUser
+     * @return List BandApplyCurrentInfoResponseDTO
+     */
     public List<BandApplyCurrentInfoResponseDTO> getApplyCurrentInfo(UserEntity user) {
         List<BandApplyInfoEntity> bandApplyInfoEntity = bandApplyInfoRepository.findByUserId(user.getId());
         return bandApplyInfoEntity.stream().map(applyInfo -> {
@@ -334,15 +389,24 @@ public class BandService {
         }).toList();
     }
 
-    public List<BandApplicantResponseDTO> getApplicantInfo(long bandId) {
-        List<BandApplyInfoEntity> applyInfoList = bandApplyInfoRepository.findUserByBandId(bandId);
+    /**
+     * 나의 밴드에 지원한 지원자 내역을 조회한다.
+     * @param user @AuthUser
+     * @param bandId 밴드Id
+     * @return List BandApplicantResponseDTO
+     */
+    public List<BandApplicantResponseDTO> getApplicantInfo(UserEntity user, long bandId) {
+        List<BandApplyInfoEntity> applyInfoList = bandApplyInfoRepository.findUserByBandId(user.getId(), bandId);
+        if (applyInfoList.isEmpty()) {
+            throw new BusinessException(ErrorCode.ACCESS_DENIED_DATA);
+        }
         return applyInfoList.stream().map(apply -> {
-            UserEntity user = apply.getUser();
+            UserEntity applyUser = apply.getUser();
             return BandApplicantResponseDTO.builder()
-                    .userId(user.getId())
-                    .profileImageUrl(user.getProfileImageUrl())
-                    .nickname(user.getNickname())
-                    .description(apply.getDescription())
+                    .userId(applyUser.getId())
+                    .profileImageUrl(applyUser.getProfileImageUrl())
+                    .nickname(applyUser.getNickname())
+                    .applyDescription(apply.getDescription())
                     .openYn(apply.isOpenYn())
                     .build();
         }).toList();

@@ -3,6 +3,12 @@ package com.mate.band.global.security.constants;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+/**
+ * Redis Key 관리 ENUM
+ * @author : 최성민
+ * @since : 2025-01-02
+ * @version : 1.0
+ */
 @Getter
 @AllArgsConstructor
 public enum RedisKey {

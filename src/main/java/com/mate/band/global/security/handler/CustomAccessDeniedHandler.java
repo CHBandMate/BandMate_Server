@@ -14,11 +14,12 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 
-// TODO 어떤 계정이 deny 됐는지 로깅 필요
 /**
  * 접근 권한 부족 Exception 관리
- * @author 최성민
- * @since 2024-12-31
+ * @author : 최성민
+ * @since : 2024-12-30
+ * @version : 1.0
+ * TODO 어떤 계정이 deny 됐는지 로깅 필요
  */
 @Component
 @Slf4j

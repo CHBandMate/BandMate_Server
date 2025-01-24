@@ -11,6 +11,12 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+/**
+ * OAuth2 인증 실패 Handler
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Component
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
     private final String LOGIN_URL;

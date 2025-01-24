@@ -21,6 +21,12 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsUtils;
 
+/**
+ * Spring Security 설정
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor

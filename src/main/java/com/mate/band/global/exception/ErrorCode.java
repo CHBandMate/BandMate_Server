@@ -2,13 +2,12 @@ package com.mate.band.global.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
-// TODO ErrorCode 정리 필요
 /**
- * [API Response]
  * Error 관련 코드 정의
  * @author 최성민
  * @since 2024-12-03
  * @version 1.0
+ * TODO ErrorCode 정리 필요
  */
 @Getter
 @AllArgsConstructor
@@ -31,6 +30,7 @@ public enum ErrorCode {
     ALREADY_APPLIED_BAND(400, "ALREADY_APPLIED_BAND", "이미 지원 한 밴드입니다."),
     ALREADY_BAND_MEMBER(400, "ALREADY_BAND_MEMBER", "이미 가입 되어있는 밴드입니다."),
     ALREADY_INVITED_USER(400, "ALREADY_INVITED_USER", "이미 초대한 회원입니다."),
+    ACCESS_DENIED_DATA(400, "ACCESS_DENIED_DATA", "접근이 불가능한 요청입니다."),
     OTHER_ERROR(400, "OTHER_ERROR", "Other Error"),
 
     //************************************************ Auth Error ************************************************//

@@ -9,6 +9,12 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
+/**
+ * 시간 관련 abstract Entity
+ * @author : 최성민
+ * @since : 2025-01-11
+ * @version : 1.0
+ */
 @MappedSuperclass
 @EntityListeners(AuditingEntityListener.class)
 public abstract class BaseTimeEntity {

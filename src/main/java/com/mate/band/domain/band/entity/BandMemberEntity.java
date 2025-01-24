@@ -5,6 +5,12 @@ import com.mate.band.domain.user.entity.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
+/**
+ * 밴드 멤버 Entity
+ * @author : 최성민
+ * @since : 2025-01-09
+ * @version : 1.0
+ */
 @Getter
 @Entity
 @Table(name = "band_member")

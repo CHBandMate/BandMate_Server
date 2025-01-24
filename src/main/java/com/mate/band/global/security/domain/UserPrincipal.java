@@ -10,6 +10,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * Security에서 사용할 User의 Principal 객체
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Getter
 public class UserPrincipal implements OAuth2User {
 

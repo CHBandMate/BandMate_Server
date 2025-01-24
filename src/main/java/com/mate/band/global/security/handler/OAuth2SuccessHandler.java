@@ -17,6 +17,15 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
 
+/**
+ * OAuth2 인증 성공 Handler</br>
+ * 클라이언트의 /auth 페이지로 identifier, code와 함께 리다이렉트 시킨다.</br>
+ * identifier : 회원Id</br>
+ * code : JWT 발급을 위한 임시 코드
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
+ */
 @Configuration
 @Slf4j
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {

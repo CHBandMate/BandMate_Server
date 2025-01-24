@@ -6,6 +6,12 @@ import lombok.AllArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 밴드 포지션 ENUM
+ * @author : 최성민
+ * @since : 2025-01-08
+ * @version : 1.0
+ */
 @AllArgsConstructor
 public enum Position implements EnumModel {
     GUITAR("GUITAR", "기타"),

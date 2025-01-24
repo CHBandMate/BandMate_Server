@@ -18,13 +18,30 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 
+/**
+ * PackageName :
+ * FileName : Auth service
+ * Author :
+ * Date : 01.24.2025
+ * Description :
+ *
+ * @author : 최성민
+ * @version : 1.0
+ * @since : 2025-01-02
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class AuthService {
+
     private final UserRepository userRepository;
     private final RedisService redisService;
 
+    /**
+     * JWT를 발급하고 Redis에 저장한다.
+     * @param response     HttpServletResponse
+     * @param tokenRequest 토큰 발급 요청 데이터
+     */
     public void issueToken(HttpServletResponse response, TokenRequestDTO tokenRequest) {
         String authTempCode = tokenRequest.authTempCode();
 
@@ -36,6 +53,11 @@ public class AuthService {
         }
     }
 
+    /**
+     * RefreshToken으로 JWT를 재발급하고 Redis에 저장한다.
+     * @param response     HttpServletResponse
+     * @param refreshToken Refresh 토큰값
+     */
     public void reissueToken(HttpServletResponse response, String refreshToken) {
         if (!JWTUtils.isValidToken(Auth.REFRESH_TYPE, refreshToken)) {
             throw new BusinessException(ErrorCode.TOKEN_NOT_ALLOWED);
@@ -44,7 +66,7 @@ public class AuthService {
         long userId = Long.parseLong(JWTUtils.getSubjectFromToken(Auth.REFRESH_TYPE, refreshToken));
         String refreshTokenInRedis = redisService.getRefreshToken(userId);
 
-        if (refreshTokenInRedis.isEmpty()) {
+        if (refreshTokenInRedis == null) {
             throw new BusinessException(ErrorCode.TOKEN_NUll);
         }
 
@@ -55,6 +77,12 @@ public class AuthService {
         saveToken(response, userId);
     }
 
+    /**
+     * Redis에 RefreshToken을 저장하고 AccessToken을 Response Header 담는다.</br>
+     * RefreshToken 발급이 실패해도 AccessToken 재발급은 진행한다.
+     * @param response     HttpServletResponse
+     * @param userId 회원Id
+     */
     private void saveToken(HttpServletResponse response, long userId) {
         UserEntity user = userRepository.findById(userId).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
         Map<String, String> tokenMap = JWTUtils.generateAuthenticatedTokens(user);
@@ -79,4 +107,13 @@ public class AuthService {
         Authentication authentication = JWTUtils.getAuthentication(accessToken);
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
+
+    /**
+     * Redis에서 회원의 RefreshToken을 제거하고 로그아웃을 처리한다.
+     * @param user @AuthUser
+     */
+    public void logout(UserEntity user) {
+        redisService.deleteRefreshToken(user.getId());
+    }
+
 }

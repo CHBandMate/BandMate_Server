@@ -10,10 +10,10 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * CORS 관리
- * @author : sungmin
- * @fileName : CustomCorsConfigurationSource
- * @since : 2024/12/17
+ * CORS 설정
+ * @author : 최성민
+ * @since : 2024-12-18
+ * @version : 1.0
  */
 @Component
 public class CustomCorsConfigurationSource implements CorsConfigurationSource {

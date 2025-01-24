@@ -63,27 +63,4 @@ public class BandRepositoryImpl implements BandRepositoryCustom {
                 hasNext ? pageable.getOffset() + pageable.getPageSize() : pageable.getOffset() + content.size()
         );
     }
-
-
-//    public BandProfileResponseDTO findBandProfileById(long bandId) {
-//        QBandEntity band = QBandEntity.bandEntity;
-//        ListPath<DistrictMappingEntity, QDistrictMappingEntity> districtList = band.districts;
-//        ListPath<MusicGenreMappingEntity, QMusicGenreMappingEntity> musicGenreList = band.musicGenres;
-//        ListPath<PositionMappingEntity, QPositionMappingEntity> positionList = band.recruitingPositions;
-//        QBandRecruitInfoEntity bandRecruitInfo = band.bandRecruitInfoEntity;
-//
-//        BooleanBuilder builder = new BooleanBuilder();
-//        builder.and(band.id.eq(bandId))
-//                .and(band.exposeYn.eq(true))
-//                .and(band.deleteYn.eq(false));
-//
-//        jpaQueryFactory
-//                .select(Projections.constructor(BandProfileResponseDTO.class,
-//                        band.id, band.user.id, band.profileImageUrl, band.user.nickname, bandRecruitInfo.title,))
-//                .from(band)
-//                .where(builder).fetchOne();
-//
-//
-//    }
-
 }
