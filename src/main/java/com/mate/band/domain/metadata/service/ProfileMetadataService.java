@@ -5,7 +5,11 @@ import com.mate.band.domain.metadata.constants.MusicGenre;
 import com.mate.band.domain.metadata.constants.Position;
 import com.mate.band.domain.metadata.constants.SnsPlatform;
 import com.mate.band.domain.metadata.dto.*;
+import com.mate.band.domain.metadata.entity.DistrictEntity;
+import com.mate.band.domain.metadata.repository.DistrictRepository;
 import com.mate.band.domain.metadata.repository.RegionRepository;
+import com.mate.band.global.exception.BusinessException;
+import com.mate.band.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -25,10 +29,10 @@ import java.util.stream.Stream;
 public class ProfileMetadataService {
 
     private final RegionRepository regionRepository;
-
+    private final DistrictRepository districtRepository;
 
     /**
-     * ENUM에 등록 된 음악 장르, 밴드 포지션, SNS 플랫폼 항목을 조회합니다.
+     * ENUM에 등록 된 모든 음악 장르, 밴드 포지션, SNS 플랫폼 항목을 조회합니다.
      * @return ProfileMetaDataResponseDTO
      */
     public ProfileMetaDataResponseDTO getProfileMetadata() {
@@ -43,6 +47,19 @@ public class ProfileMetadataService {
                 .build();
     }
 
+    /**
+     * 지역 데이터를 검증한다.
+     * @param districts 지역 정보
+     * @return List DistrictEntity
+     * @throws BusinessException 존재하지 않는 지역 코드
+     */
+    public List<DistrictEntity> verifyDistrict(List<Long> districts) {
+        List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
+        if (districts.size() != districtEntityList.size()) {
+            throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
+        }
+        return districtEntityList;
+    }
 
     /**
      * DB에 저장 된 지역 항목을 조회합니다.

@@ -23,6 +23,7 @@ import java.util.Optional;
  * @author : 최성민
  * @since : 2024-12-30
  * @version : 1.0
+ * TODO 회원 탈퇴 API 추가
  */
 @Tag(name = "UserController", description = "회원 관련 API")
 @RestController

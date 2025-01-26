@@ -13,6 +13,7 @@ import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.metadata.repository.*;
+import com.mate.band.domain.metadata.service.ProfileMetadataService;
 import com.mate.band.domain.user.dto.*;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.entity.UserInviteInfoEntity;
@@ -40,14 +41,85 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class UserService {
+    private final ProfileMetadataService profileMetadataService;
     private final UserRepository userRepository;
     private final BandRepository bandRepository;
-    private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
     private final UserInviteInfoRepository userInviteInfoRepository;
 
+
+    /**
+     * 로그인 한 유저의 프로필을 등록한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 등록 데이터
+     * TODO 리팩토링
+     */
+    @Transactional
+    public void registerUserProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        if (userEntity.getRole() != Role.NOT_REGISTERED) {
+            throw new BusinessException(ErrorCode.REGISTERED_USER);
+        }
+
+        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
+        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
+        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
+        userEntity.updateUser(profileParam);
+
+        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .district(district)
+                        .build()).toList();
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
+
+        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
+                PositionMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .position(Position.valueOf(position))
+                        .build()).toList();
+
+        districtMappingRepository.saveAll(districtMappingEntityList);
+        musicGenreMappingRepository.saveAll(musicGenreMappingEntityList);
+        positionMappingRepository.saveAll(positionMappingEntityList);
+    }
+
+    /**
+     * 회원을 밴드에 초대한다.
+     * @param inviteParam 초대 정보 데이터
+     */
+    public void inviteUser(UserInviteRequestDTO inviteParam) {
+        if (userInviteInfoRepository.findByBandUserId(inviteParam.bandId(), inviteParam.userId()).isPresent()) {
+            throw new BusinessException(ErrorCode.ALREADY_INVITED_USER);
+        }
+
+        BandEntity band = bandRepository.findById(inviteParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+        for (BandMemberEntity member : band.getBandMembers()) {
+            if (member.getUser().getId().equals(inviteParam.userId())) {
+                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+            }
+        }
+
+        userInviteInfoRepository.save(
+                UserInviteInfoEntity.builder()
+                        .band(band)
+                        .user(userRepository.findById(inviteParam.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER)))
+                        .description(inviteParam.description())
+                        .openYn(false)
+                        .deleteYn(false)
+                        .build()
+        );
+    }
 
     /**
      * 닉네임으로 회원을 검색한다.
@@ -109,107 +181,6 @@ public class UserService {
     }
 
     /**
-     * 로그인 한 유저의 프로필을 등록한다.
-     * @param user         @AuthUser
-     * @param profileParam 프로필 등록 데이터
-     * TODO 리팩토링
-     */
-    @Transactional
-    public void registerUserProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
-        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        if (userEntity.getRole() != Role.NOT_REGISTERED) {
-            throw new BusinessException(ErrorCode.REGISTERED_USER);
-        }
-
-        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
-        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
-        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
-        userEntity.updateUser(profileParam);
-
-        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
-                PositionMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .position(Position.valueOf(position))
-                        .build()).toList();
-
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
-                MusicGenreMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .genre(MusicGenre.valueOf(genre))
-                        .build()).toList();
-
-        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
-                DistrictMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .district(district)
-                        .build()).toList();
-
-        positionMappingRepository.saveAll(positionMappingEntityList);
-        musicGenreMappingRepository.saveAll(musicGenreMappingEntityList);
-        districtMappingRepository.saveAll(districtMappingEntityList);
-    }
-
-    /**
-     * 로그인 한 유저의 프로필을 수정한다.
-     * @param user         @AuthUser
-     * @param profileParam 프로필 수정 데이터
-     */
-    @Transactional
-    public void editProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
-
-        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
-        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
-        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
-        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
-
-        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
-                DistrictMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .district(district)
-                        .build()).toList();
-
-        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
-                PositionMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .position(Position.valueOf(position))
-                        .build()).toList();
-
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
-                MusicGenreMappingEntity.builder()
-                        .type(MappingType.USER)
-                        .user(userEntity)
-                        .genre(MusicGenre.valueOf(genre))
-                        .build()).toList();
-
-        userEntity.getDistricts().clear();
-        userEntity.getPositions().clear();
-        userEntity.getMusicGenres().clear();
-        userEntity.getDistricts().addAll(districtMappingEntityList);
-        userEntity.getPositions().addAll(positionMappingEntityList);
-        userEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
-        userEntity.updateUser(profileParam);
-    }
-
-    /**
-     * 지역 정보를 검증한다.
-     * @param districts 지역 정보
-     * @return List DistrictEntity
-     */
-    private List<DistrictEntity> verifyDistrict(List<Long> districts) {
-        List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
-        if (districts.size() != districtEntityList.size()) {
-            throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
-        }
-        return districtEntityList;
-    }
-
-
-    /**
      * 특정 회원의 프로필을 조회한다.
      * @param userId 회원Id
      * @return UserProfileResponseDTO
@@ -260,34 +231,6 @@ public class UserService {
                 .build();
     }
 
-
-    /**
-     * 회원을 밴드에 초대한다.
-     * @param inviteParam 초대 정보 데이터
-     */
-    public void inviteUser(UserInviteRequestDTO inviteParam) {
-        if (userInviteInfoRepository.findByBandUserId(inviteParam.bandId(), inviteParam.userId()).isPresent()) {
-            throw new BusinessException(ErrorCode.ALREADY_INVITED_USER);
-        }
-
-        BandEntity band = bandRepository.findById(inviteParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
-        for (BandMemberEntity member : band.getBandMembers()) {
-            if (member.getUser().getId().equals(inviteParam.userId())) {
-                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
-            }
-        }
-
-        userInviteInfoRepository.save(
-                UserInviteInfoEntity.builder()
-                        .band(band)
-                        .user(userRepository.findById(inviteParam.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER)))
-                        .description(inviteParam.description())
-                        .openYn(false)
-                        .deleteYn(false)
-                        .build()
-        );
-    }
-
     /**
      * 로그인 한 유저가 밴드에 초대받은 내역을 조회한다.
      * @param user @AuthUser
@@ -304,6 +247,49 @@ public class UserService {
                     .openYn(inviteInfo.isOpenYn())
                     .build();
         }).toList();
+    }
+
+    /**
+     * 로그인 한 유저의 프로필을 수정한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 수정 데이터
+     */
+    @Transactional
+    public void editProfile(UserEntity user, RegisterUserProfileRequestDTO profileParam) {
+
+        UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
+        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
+        MetadataEnumRepository.verifyMetadataKey(profileParam.position(), Position.class);
+        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
+
+        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .district(district)
+                        .build()).toList();
+
+        List<PositionMappingEntity> positionMappingEntityList = profileParam.position().stream().map(position ->
+                PositionMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .position(Position.valueOf(position))
+                        .build()).toList();
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.USER)
+                        .user(userEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
+
+        userEntity.getDistricts().clear();
+        userEntity.getPositions().clear();
+        userEntity.getMusicGenres().clear();
+        userEntity.getDistricts().addAll(districtMappingEntityList);
+        userEntity.getPositions().addAll(positionMappingEntityList);
+        userEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
+        userEntity.updateUser(profileParam);
     }
 
 }

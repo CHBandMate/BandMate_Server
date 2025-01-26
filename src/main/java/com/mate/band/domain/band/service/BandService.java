@@ -19,6 +19,7 @@ import com.mate.band.domain.metadata.entity.DistrictMappingEntity;
 import com.mate.band.domain.metadata.entity.MusicGenreMappingEntity;
 import com.mate.band.domain.metadata.entity.PositionMappingEntity;
 import com.mate.band.domain.metadata.repository.*;
+import com.mate.band.domain.metadata.service.ProfileMetadataService;
 import com.mate.band.domain.user.entity.UserEntity;
 import com.mate.band.domain.user.repository.UserRepository;
 import com.mate.band.global.exception.BusinessException;
@@ -44,11 +45,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class BandService {
 
+    private final ProfileMetadataService profileMetadataService;
     private final BandRepository bandRepository;
     private final UserRepository userRepository;
     private final BandMemberEntityRepository bandMemberEntityRepository;
     private final BandRecruitInfoRepository bandRecruitInfoRepository;
-    private final DistrictRepository districtRepository;
     private final PositionMappingRepository positionMappingRepository;
     private final MusicGenreMappingRepository musicGenreMappingRepository;
     private final DistrictMappingRepository districtMappingRepository;
@@ -64,7 +65,7 @@ public class BandService {
         UserEntity userEntity = userRepository.findById(user.getId()).orElseThrow(() -> new BusinessException(ErrorCode.UNAUTHORIZED));
 
         MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
-        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
+        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
 
         BandEntity bandEntity =
                 BandEntity.builder()
@@ -75,18 +76,18 @@ public class BandService {
                         .recruitYn(profileParam.recruitYn())
                         .build();
 
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
-                MusicGenreMappingEntity.builder()
-                        .type(MappingType.BAND)
-                        .band(bandEntity)
-                        .genre(MusicGenre.valueOf(genre))
-                        .build()).toList();
-
         List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
                 DistrictMappingEntity.builder()
                         .type(MappingType.BAND)
                         .band(bandEntity)
                         .district(district)
+                        .build()).toList();
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .genre(MusicGenre.valueOf(genre))
                         .build()).toList();
 
         bandRepository.save(bandEntity);
@@ -154,14 +155,7 @@ public class BandService {
         bandEntity.updateBand(profileParam);
 
         MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
-        List<DistrictEntity> districts = verifyDistrict(profileParam.district());
-
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
-                MusicGenreMappingEntity.builder()
-                        .type(MappingType.BAND)
-                        .band(bandEntity)
-                        .genre(MusicGenre.valueOf(genre))
-                        .build()).toList();
+        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
 
         List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
                 DistrictMappingEntity.builder()
@@ -170,11 +164,17 @@ public class BandService {
                         .district(district)
                         .build()).toList();
 
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
 
-        bandEntity.getMusicGenres().clear();
         bandEntity.getDistricts().clear();
-        bandEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
+        bandEntity.getMusicGenres().clear();
         bandEntity.getDistricts().addAll(districtMappingEntityList);
+        bandEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
         bandEntity.getBandMembers().clear();
 
         List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
@@ -226,6 +226,16 @@ public class BandService {
 
         Page<BandEntity> recruitingBandList = bandRepository.findBandList(districtParam, genreParam, positionParam, recruitYn, pageable);
         return recruitingBandList.map(recruitingBand -> {
+
+            // 합주 지역 데이터
+            List<DistrictDataDTO> districtList =
+                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
+                            DistrictDataDTO.builder()
+                                    .districtId(districtMappingEntity.getDistrict().getId())
+                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
+                                    .build()
+                    ).toList();
+
             // 음악 장르 데이터
             List<ProfileMetaDataDTO> musicGenreList =
                     recruitingBand.getMusicGenres().stream().map(MusicGenreMappingEntity::getGenre).toList()
@@ -238,23 +248,14 @@ public class BandService {
                             .stream().map(position -> ProfileMetaDataDTO.builder().key(position.getkey()).value(position.getValue()).build())
                             .toList();
 
-            // 합주 지역 데이터
-            List<DistrictDataDTO> districtList =
-                    recruitingBand.getDistricts().stream().map(districtMappingEntity ->
-                            DistrictDataDTO.builder()
-                                    .districtId(districtMappingEntity.getDistrict().getId())
-                                    .districtName(districtMappingEntity.getDistrict().getDistrictName())
-                                    .build()
-                    ).toList();
-
             return BandRecruitInfoResponseDTO.builder()
                     .bandId(recruitingBand.getId())
                     .bandName(recruitingBand.getBandName())
                     .recruitTitle(recruitingBand.getBandRecruitInfoEntity().getTitle())
                     .description(recruitingBand.getBandRecruitInfoEntity().getDescription())
+                    .districts(districtList)
                     .genres(musicGenreList)
                     .positions(positionList)
-                    .districts(districtList)
                     .build();
         });
     }
@@ -325,20 +326,6 @@ public class BandService {
                 .districts(districtList)
                 .members(bandMemberList)
                 .build();
-    }
-
-    /**
-     * 지역 데이터를 검증한다.
-     * @param districts 지역 정보
-     * @return List DistrictEntity
-     * @throws BusinessException 존재하지 않는 지역 코드
-     */
-    private List<DistrictEntity> verifyDistrict(List<Long> districts) {
-        List<DistrictEntity> districtEntityList = districtRepository.findByIdIn(districts);
-        if (districts.size() != districtEntityList.size()) {
-            throw new BusinessException(ErrorCode.NOT_EXIST_CODE);
-        }
-        return districtEntityList;
     }
 
     /**

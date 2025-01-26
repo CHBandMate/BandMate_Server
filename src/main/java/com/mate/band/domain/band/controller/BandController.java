@@ -22,6 +22,7 @@ import java.util.List;
  * @author : 최성민
  * @since : 2025-01-09
  * @version : 1.0
+ * TODO 밴드 삭제, 밴드 멤버 삭제 API 추가
  */
 @Tag(name = "BandController", description = "밴드 관련 API")
 @RestController
