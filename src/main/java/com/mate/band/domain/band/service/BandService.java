@@ -136,76 +136,42 @@ public class BandService {
     }
 
     /**
+     * 현재 사용자가 밴드에 지원한다.
+     * @param user             @AuthUser
+     * @param bandApplyRequest 밴드 지원 내용
+     */
+    @Transactional
+    public void applyBand(UserEntity user, BandApplyRequestDTO bandApplyRequest) {
+
+        // 이미 지원한 밴드
+        if (bandApplyInfoRepository.findByBandUserId(bandApplyRequest.bandId(), user.getId()).isPresent()) {
+            throw new BusinessException(ErrorCode.ALREADY_APPLIED_BAND);
+        }
+
+        BandEntity band = bandRepository.findById(bandApplyRequest.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+
+        // 본인 밴드에 지원
+        if (Objects.equals(band.getUser().getId(), user.getId())) {
+            throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+        }
+
+        // 밴드 멤버가 지원
+        for (BandMemberEntity member : band.getBandMembers()) {
+            if (Objects.equals(member.getUser().getId(), user.getId())) {
+                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
+            }
+        }
+
+        bandApplyInfoRepository.save(BandApplyInfoEntity.builder().band(band).user(user).description(bandApplyRequest.applyDescription()).build());
+    }
+
+    /**
      * 밴드명이 중복 되는지 확인한다.
      * @param bandName 밴드명
      * @return Boolean
      */
     public Boolean checkBandName(String bandName) {
         return bandRepository.findByBandName(bandName).isEmpty();
-    }
-
-    /**
-     * 밴드 프로필을 수정한다.
-     * @param user         @AuthUser
-     * @param profileParam 프로필 수정 데이터
-     */
-    @Transactional
-    public void editBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
-        BandEntity bandEntity = bandRepository.findById(profileParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
-        bandEntity.updateBand(profileParam);
-
-        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
-        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
-
-        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
-                DistrictMappingEntity.builder()
-                        .type(MappingType.BAND)
-                        .band(bandEntity)
-                        .district(district)
-                        .build()).toList();
-
-        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
-                MusicGenreMappingEntity.builder()
-                        .type(MappingType.BAND)
-                        .band(bandEntity)
-                        .genre(MusicGenre.valueOf(genre))
-                        .build()).toList();
-
-        bandEntity.getDistricts().clear();
-        bandEntity.getMusicGenres().clear();
-        bandEntity.getDistricts().addAll(districtMappingEntityList);
-        bandEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
-        bandEntity.getBandMembers().clear();
-
-        List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
-        for (RegisterBandMemberDTO bandMember : profileParam.bandMember()) {
-            UserEntity member;
-            if (bandMember.userId() == bandEntity.getUser().getId()) {    // 나 자신 일때
-                member = bandEntity.getUser();
-            } else {
-                member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
-            }
-            bandMemberEntityList.add(BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build());
-        }
-        bandEntity.getBandMembers().addAll(bandMemberEntityList);
-
-        if (profileParam.recruitYn()) {
-            // 모집 포지션
-            MetadataEnumRepository.verifyMetadataKey(profileParam.recruitPosition(), Position.class);
-            List<PositionMappingEntity> positionMappingEntityList = profileParam.recruitPosition().stream().map(position ->
-                    PositionMappingEntity.builder()
-                            .type(MappingType.BAND)
-                            .band(bandEntity)
-                            .position(Position.valueOf(position))
-                            .build()).toList();
-            bandEntity.getRecruitingPositions().clear();
-            bandEntity.getRecruitingPositions().addAll(positionMappingEntityList);
-
-            // 모집 내용
-            BandRecruitInfoEntity bandRecruitInfoEntity = bandEntity.getBandRecruitInfoEntity();
-            bandRecruitInfoEntity.setTitle(profileParam.recruitTitle());
-            bandRecruitInfoEntity.setDescription(profileParam.recruitDescription());
-        }
     }
 
     /**
@@ -329,36 +295,6 @@ public class BandService {
     }
 
     /**
-     * 현재 사용자가 밴드에 지원한다.
-     * @param user             @AuthUser
-     * @param bandApplyRequest 밴드 지원 내용
-     */
-    @Transactional
-    public void applyBand(UserEntity user, BandApplyRequestDTO bandApplyRequest) {
-
-        // 이미 지원한 밴드
-        if (bandApplyInfoRepository.findByBandUserId(bandApplyRequest.bandId(), user.getId()).isPresent()) {
-            throw new BusinessException(ErrorCode.ALREADY_APPLIED_BAND);
-        }
-
-        BandEntity band = bandRepository.findById(bandApplyRequest.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
-
-        // 본인 밴드에 지원
-        if (Objects.equals(band.getUser().getId(), user.getId())) {
-            throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
-        }
-
-        // 밴드 멤버가 지원
-        for (BandMemberEntity member : band.getBandMembers()) {
-            if (Objects.equals(member.getUser().getId(), user.getId())) {
-                throw new BusinessException(ErrorCode.ALREADY_BAND_MEMBER);
-            }
-        }
-
-        bandApplyInfoRepository.save(BandApplyInfoEntity.builder().band(band).user(user).description(bandApplyRequest.applyDescription()).build());
-    }
-
-    /**
      * 나의 밴드 지원 현황을 조회한다.
      * @param user @AuthUser
      * @return List BandApplyCurrentInfoResponseDTO
@@ -397,6 +333,70 @@ public class BandService {
                     .openYn(apply.isOpenYn())
                     .build();
         }).toList();
+    }
+
+    /**
+     * 밴드 프로필을 수정한다.
+     * @param user         @AuthUser
+     * @param profileParam 프로필 수정 데이터
+     */
+    @Transactional
+    public void editBandProfile(UserEntity user, RegisterBandProfileRequestDTO profileParam) {
+        BandEntity bandEntity = bandRepository.findById(profileParam.bandId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_BAND));
+        bandEntity.updateBand(profileParam);
+
+        MetadataEnumRepository.verifyMetadataKey(profileParam.genre(), MusicGenre.class);
+        List<DistrictEntity> districts = profileMetadataService.verifyDistrict(profileParam.district());
+
+        List<DistrictMappingEntity> districtMappingEntityList = districts.stream().map(district ->
+                DistrictMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .district(district)
+                        .build()).toList();
+
+        List<MusicGenreMappingEntity> musicGenreMappingEntityList = profileParam.genre().stream().map(genre ->
+                MusicGenreMappingEntity.builder()
+                        .type(MappingType.BAND)
+                        .band(bandEntity)
+                        .genre(MusicGenre.valueOf(genre))
+                        .build()).toList();
+
+        bandEntity.getDistricts().clear();
+        bandEntity.getMusicGenres().clear();
+        bandEntity.getDistricts().addAll(districtMappingEntityList);
+        bandEntity.getMusicGenres().addAll(musicGenreMappingEntityList);
+        bandEntity.getBandMembers().clear();
+
+        List<BandMemberEntity> bandMemberEntityList = new ArrayList<>();
+        for (RegisterBandMemberDTO bandMember : profileParam.bandMember()) {
+            UserEntity member;
+            if (bandMember.userId() == bandEntity.getUser().getId()) {    // 나 자신 일때
+                member = bandEntity.getUser();
+            } else {
+                member = userRepository.findById(bandMember.userId()).orElseThrow(() -> new BusinessException(ErrorCode.NOT_EXIST_USER));
+            }
+            bandMemberEntityList.add(BandMemberEntity.builder().band(bandEntity).user(member).position(Position.valueOf(bandMember.positionCode())).build());
+        }
+        bandEntity.getBandMembers().addAll(bandMemberEntityList);
+
+        if (profileParam.recruitYn()) {
+            // 모집 포지션
+            MetadataEnumRepository.verifyMetadataKey(profileParam.recruitPosition(), Position.class);
+            List<PositionMappingEntity> positionMappingEntityList = profileParam.recruitPosition().stream().map(position ->
+                    PositionMappingEntity.builder()
+                            .type(MappingType.BAND)
+                            .band(bandEntity)
+                            .position(Position.valueOf(position))
+                            .build()).toList();
+            bandEntity.getRecruitingPositions().clear();
+            bandEntity.getRecruitingPositions().addAll(positionMappingEntityList);
+
+            // 모집 내용
+            BandRecruitInfoEntity bandRecruitInfoEntity = bandEntity.getBandRecruitInfoEntity();
+            bandRecruitInfoEntity.setTitle(profileParam.recruitTitle());
+            bandRecruitInfoEntity.setDescription(profileParam.recruitDescription());
+        }
     }
 
 }

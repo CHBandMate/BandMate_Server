@@ -49,7 +49,6 @@ public class UserService {
     private final DistrictMappingRepository districtMappingRepository;
     private final UserInviteInfoRepository userInviteInfoRepository;
 
-
     /**
      * 로그인 한 유저의 프로필을 등록한다.
      * @param user         @AuthUser

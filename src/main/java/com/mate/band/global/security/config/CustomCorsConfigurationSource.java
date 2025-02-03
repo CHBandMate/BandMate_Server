@@ -29,8 +29,10 @@ public class CustomCorsConfigurationSource implements CorsConfigurationSource {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true);
         config.setAllowedOrigins(Collections.singletonList(ALLOWED_ORIGIN));
-        config.setAllowedHeaders(Collections.singletonList("*"));
-        config.setAllowedHeaders(Collections.singletonList("refresh"));
+        config.setAllowedHeaders(List.of("X-Requested-With", "Content-Type", "X-XSRF-token", "Authorization", "refresh"));
+//        config.setAllowedHeaders(Collections.singletonList("*"));
+//        config.setAllowedHeaders(Collections.singletonList("Authorization"));
+//        config.setAllowedHeaders(Collections.singletonList("refresh"));
         config.setAllowedMethods(ALLOWED_METHODS);
         config.setMaxAge(3600L);
         return config;
